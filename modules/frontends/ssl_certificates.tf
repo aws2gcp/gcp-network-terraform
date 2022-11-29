@@ -1,4 +1,5 @@
-# Custom SSL Certificates
+
+/* Custom SSL Certificates
 resource "google_compute_ssl_certificate" "default" {
   for_each    = local.upload_ssl_certs ? var.params.ssl_certificates : {}
   name        = each.key
@@ -8,4 +9,4 @@ resource "google_compute_ssl_certificate" "default" {
   lifecycle {
     create_before_destroy = true
   }
-}
+} */

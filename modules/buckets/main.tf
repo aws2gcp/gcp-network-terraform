@@ -3,7 +3,7 @@ locals {
   name                   = local.use_random_name ? lower(random_string.bucket_name[0].result) : lower(var.name)
   description            = try(lower(var.description), null)
   use_random_name        = var.name == null ? true : false
-  location               = coalesce(upper(var.params.location), var.region, "US")
+  location               = upper(coalesce(var.params.location, var.params.region, "us"))
   uniform_access_control = upper(substr(var.params.access_control, 0, 4)) == "FINE" ? false : true
   storage_class          = upper(var.params.class)
 }

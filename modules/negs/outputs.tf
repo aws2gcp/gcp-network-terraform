@@ -25,3 +25,5 @@ output "region" { value = local.is_regional ? var.region : null }
 output "is_ineg" { value = local.is_ineg }
 output "is_sneg" { value = local.is_sneg }
 output "neg_type" { value = local.neg_type }
+output "port" { value = local.port }
+output "protocol" { value = local.protocol }

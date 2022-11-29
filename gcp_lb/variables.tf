@@ -35,12 +35,17 @@ variable "healthcheck_defaults" {
     timeout      = optional(number)
     request_path = optional(string)
     response     = optional(string)
+    region       = optional(string)
+    logging      = optional(bool)
   })
   default = {}
 }
 variable "healthchecks" {
   description = "Map of Health Checks and their parameters"
   type = map(object({
+    create       = optional(bool)
+    name         = optional(string)
+    description  = optional(string)
     port         = optional(number)
     protocol     = optional(string)
     interval     = optional(number)
@@ -48,9 +53,9 @@ variable "healthchecks" {
     request_path = optional(string)
     response     = optional(string)
     regional     = optional(bool)
+    region       = optional(string)
     legacy       = optional(bool)
-    create       = optional(bool)
-    description  = optional(string)
+    logging      = optional(bool)
   }))
   default = {}
 }
@@ -140,9 +145,7 @@ variable "umigs" {
 }
 variable "bucket_defaults" {
   type = object({
-    create         = optional(bool, true)
     location       = optional(string)
-    region         = optional(string)
     access_control = optional(string)
   })
   default = {}
@@ -150,8 +153,8 @@ variable "bucket_defaults" {
 variable "buckets" {
   description = "Map of Google Cloud Storage Buckets"
   type = map(object({
+    create         = optional(bool, true)
     name           = optional(string)
-    description    = optional(string)
     location       = optional(string)
     region         = optional(string)
     access_control = optional(string)
@@ -173,18 +176,46 @@ variable "buckets" {
   }))
   default = {}
 }
+variable "neg_defaults" {
+  description = "Default settings for Network Endpoint Groups (can be overridden)"
+  type = object({
+    region   = optional(string)
+    port     = optional(number)
+    protocol = optional(string)
+  })
+  default = {}
+}
+variable "negs" {
+  description = "Map of Network Endpoint Groups used by this LB"
+  type = map(object({
+    create                = optional(bool, true)
+    name                  = optional(string)
+    description           = optional(string)
+    ip_address            = optional(string)
+    fqdn                  = optional(string)
+    cloud_function_name   = optional(string)
+    cloud_run_name        = optional(string)
+    app_engine_service    = optional(string)
+    app_engine_version_id = optional(string)
+    region                = optional(string)
+    port                  = optional(number)
+    protocol              = optional(string)
+  }))
+  default = {}
+}
 variable "backend_defaults" {
   description = "Default settings for all backends (can be overridden)"
   type = object({
     type   = optional(string)
     region = optional(string)
-    instance_groups = optional(map(object({
+    instance_groups = optional(list(object({
+      name = string
       zone = string
     })))
     port              = optional(number)
     protocol          = optional(string)
     healthcheck       = optional(string)
-    enable_logging    = optional(bool)
+    logging           = optional(bool)
     timeout           = optional(number)
     balancing_mode    = optional(string)
     affinity_type     = optional(string)
@@ -200,34 +231,30 @@ variable "backends" {
   description = "Map of backends for this load balancer"
   type = map(object({
     create      = optional(bool, true)
-    type        = optional(string)
+    name        = optional(string)
     description = optional(string)
-    ne_group    = optional(string)
+    type        = optional(string)
+    neg_name    = optional(string)
     port        = optional(number)
     port_name   = optional(string)
     protocol    = optional(string)
     instances   = optional(string)
-    instance_groups = optional(map(object({
+    instance_groups = optional(list(object({
+      name = string
       zone = string
     })))
-    balancing_mode        = optional(string)
-    timeout               = optional(number)
-    region                = optional(string)
-    healthcheck           = optional(string)
-    enable_logging        = optional(bool)
-    affinity_type         = optional(string)
-    cloudarmor_policy     = optional(string)
-    enable_cdn            = optional(bool)
-    cdn_cache_mode        = optional(string)
-    bucket                = optional(string)
-    bucket_name           = optional(string)
-    ip_address            = optional(string)
-    fqdn                  = optional(string)
-    cloud_function_name   = optional(string)
-    cloud_run_name        = optional(string)
-    app_engine_service    = optional(string)
-    app_engine_version_id = optional(string)
-    auto_scale            = optional(bool)
+    balancing_mode    = optional(string)
+    timeout           = optional(number)
+    region            = optional(string)
+    healthcheck       = optional(string)
+    logging           = optional(bool)
+    affinity_type     = optional(string)
+    cloudarmor_policy = optional(string)
+    enable_cdn        = optional(bool)
+    cdn_cache_mode    = optional(string)
+    bucket            = optional(string)
+    bucket_name       = optional(string)
+    auto_scale        = optional(bool)
   }))
   default = {}
 }
@@ -289,18 +316,18 @@ variable "frontends" {
   }))
   default = {}
 }
-variable "ssl_certificates" {
-  description = "Map of existing SSL Certificates to upload to Google Certificate Manager"
+variable "ssl_certs" {
+  description = "Map of SSL Certificates to upload to Google Certificate Manager"
   type = map(object({
+    name        = optional(string)
     description = optional(string)
     domains     = optional(list(string))
     certificate = optional(string)
     private_key = optional(string)
+    regional    = optional(bool)
+    region      = optional(string)
   }))
   default = {
-    self-signed-cert = {
-      certificate = "localhost.crt"
-      private_key = "localhost.key"
-    }
+    self-signed-cert = {}
   }
 }

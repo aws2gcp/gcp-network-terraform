@@ -1,34 +1,38 @@
 
 # GCS Buckets
 module "buckets" {
-  source      = "../modules/buckets"
-  for_each    = var.buckets
-  project_id  = var.project_id
-  name        = each.value.name
-  description = each.value.description
-  region      = try(coalesce(each.value.region, var.bucket_defaults.region), null)
-  params      = merge(var.bucket_defaults, each.value)
+  source   = "../modules/buckets"
+  for_each = var.buckets
+  name     = each.value.name
+  #description = each.value.description
+  params = merge(var.bucket_defaults, each.value, {
+    region = try(coalesce(each.value.region, var.region), null)
+  })
+  project_id = var.project_id
 }
 
 # Network Endpoint Groups (Serverless and Internet)
 module "negs" {
-  source     = "../modules/negs"
-  for_each   = var.backends
+  source      = "../modules/negs"
+  for_each    = var.negs
+  name        = coalesce(each.value.name, each.key)
+  description = each.value.description
+  params = merge(var.neg_defaults, each.value, {
+    region = try(coalesce(each.value.region, var.region), null)
+  })
   project_id = var.project_id
-  name       = each.key
-  region     = try(coalesce(each.value.region, var.backend_defaults.region, var.region), null)
-  params     = merge(var.backend_defaults, each.value)
 }
 
 # Healthchecks (Global, Regional, and Legacy)
 module "healthchecks" {
   source      = "../modules/healthchecks"
   for_each    = var.healthchecks
-  project_id  = var.project_id
-  name        = each.key
+  name        = coalesce(each.value.name, each.key)
   description = each.value.description
-  region      = try(coalesce(each.value.region, var.backend_defaults.region, var.region), null)
-  params      = merge(var.healthcheck_defaults, each.value)
+  params = merge(var.healthcheck_defaults, each.value, {
+    region = try(coalesce(each.value.region, var.healthcheck_defaults.region), null)
+  })
+  project_id = var.project_id
 }
 
 /* Create Instance Template for each region
@@ -72,18 +76,32 @@ module "instances" {
   depends_on = [module.healthchecks]
 }
 
-/* Backend Services & Buckets
+# Backend Services & Backend Buckets
 module "backends" {
   source      = "../modules/backends"
   for_each    = var.backends
-  project_id  = var.project_id
-  name        = "${var.naming_prefix}-${each.key}"
+  name        = coalesce(each.value.name, "${var.naming_prefix}-${each.key}")
   description = each.value.description
-  region      = try(coalesce(each.value.region, var.backend_defaults.region, var.region), null)
-  params      = merge(var.backend_defaults, each.value)
-  depends_on  = [module.instances, module.negs, module.buckets]
-}*/
+  params = merge(var.backend_defaults, each.value, {
+    region      = try(coalesce(each.value.region, var.backend_defaults.region, var.region), null)
+    bucket_name = each.value.bucket_name != null ? each.value.bucket_name : try(module.buckets[each.value.bucket].name, null)
+    neg_id      = try(module.negs[each.value.neg_name].id, null)
+  })
+  project_id = var.project_id
+  depends_on = [module.instances, module.negs, module.buckets]
+}
 
+# SSL Certificates
+module "ssl-certs" {
+  source      = "../modules/ssl_certs"
+  for_each    = var.ssl_certs
+  name        = coalesce(each.value.name, each.key)
+  description = each.value.description
+  params      = each.value
+  project_id  = var.project_id
+}
+
+# Frontends
 module "frontends" {
   source      = "../modules/frontends"
   for_each    = var.frontends

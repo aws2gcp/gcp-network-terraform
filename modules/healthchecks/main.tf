@@ -1,5 +1,5 @@
 locals {
-  create_hc   = var.create && local.is_global || local.is_regional || local.is_legacy
+  create_hc   = coalesce(var.create, true) && local.is_global || local.is_regional || local.is_legacy
   name        = lower(coalesce(var.name, "${local.protocol}-${var.params.port}"))
   description = try(lower(var.description), null)
   is_regional = var.params.regional ? true : false
@@ -37,9 +37,14 @@ resource "google_compute_health_check" "default" {
       response     = var.params.response
     }
   }
-  check_interval_sec = var.params.interval
-  timeout_sec        = var.params.timeout
-  project            = var.project_id
+  check_interval_sec  = var.params.interval
+  timeout_sec         = var.params.timeout
+  healthy_threshold   = var.params.healthy_threshold
+  unhealthy_threshold = var.params.unhealthy_threshold
+  log_config {
+    enable = var.params.logging
+  }
+  project = var.project_id
 }
 
 # Regional Health Checks
@@ -47,7 +52,7 @@ resource "google_compute_region_health_check" "default" {
   count       = local.create_hc && local.is_regional && !local.is_legacy ? 1 : 0
   name        = local.name
   description = local.description
-  region      = var.region
+  region      = var.params.region
   dynamic "tcp_health_check" {
     for_each = local.protocol == "TCP" ? [true] : []
     content {
@@ -70,9 +75,14 @@ resource "google_compute_region_health_check" "default" {
       response     = var.params.response
     }
   }
-  check_interval_sec = var.params.interval
-  timeout_sec        = var.params.timeout
-  project            = var.project_id
+  check_interval_sec  = var.params.interval
+  timeout_sec         = var.params.timeout
+  healthy_threshold   = var.params.healthy_threshold
+  unhealthy_threshold = var.params.unhealthy_threshold
+  log_config {
+    enable = var.params.logging
+  }
+  project = var.project_id
 }
 
 # Legacy HTTP Health Check

@@ -31,7 +31,7 @@ locals {
   https_target        = local.create_https ? (local.is_global ? google_compute_target_https_proxy.default.0.id : google_compute_region_target_https_proxy.default.0.id) : null
   psc_nat_subnets     = var.params.psc_nat_subnets != null ? [for sn in var.params.psc_nat_subnets : "${local.subnet_prefix}/${sn}"] : null
   upload_ssl_certs    = var.params.ssl_certificates != null && local.create_https ? true : false
-  ssl_certificates    = local.upload_ssl_certs ? [for k, v in var.params.ssl_certificates : google_compute_ssl_certificate.default[k].id] : null
+  ssl_certificates    = [] #local.upload_ssl_certs ? [for k, v in var.params.ssl_certificates : google_compute_ssl_certificate.default[k].id] : null
   redirect_to_https   = local.is_http ? var.params.redirect_to_https : false
   psc_connection_pref = var.params.psc_auto_accept_all_projects ? "ACCEPT_AUTOMATIC" : "ACCEPT_MANUAL"
 }

@@ -2,11 +2,6 @@ variable "project_id" {
   description = "Project ID for these Beautiful Resources"
   type        = string
 }
-variable "region" {
-  description = "Name of the GCP Region for these Wonderful Resources"
-  type        = string
-  default     = null
-}
 variable "name" {
   description = "Name of this Thang"
   type        = string
@@ -23,23 +18,17 @@ variable "create" {
   default     = true
 }
 variable "params" {
-  description = "Parameters for this frontend"
+  description = "Parameters for this SSL Certificate & Key"
   type = object({
-    description             = optional(string)
     domains                 = optional(list(string))
     certificate             = optional(string)
     private_key             = optional(string)
     regional                = optional(bool, false)
-    self_signed             = optional(bool, false)
+    region                  = optional(string)
+    self_signed             = optional(bool)
     self_signed_valid_hours = optional(number)
     self_signed_valid_days  = optional(number)
     self_signed_valid_years = optional(number, 10)
   })
-  default = {
-    certificate = "localhost.crt"
-    private_key = "localhost.key"
-    regional    = false
-    self_signed = false
-    #self_signed_valid_hours = 0
-  }
+  default = {}
 }

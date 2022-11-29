@@ -22,6 +22,12 @@ output "self_link" {
     google_compute_https_health_check.default.*.self_link,
   )) : null
 }
+output "type" {
+  value = local.create_hc ? one(concat(
+    google_compute_health_check.default.*.type,
+    google_compute_region_health_check.default.*.type,
+  )) : null
+}
 output "is_global" { value = local.is_global }
 output "is_regional" { value = local.is_regional }
 output "is_legacy" { value = local.is_legacy }

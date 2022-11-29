@@ -2,11 +2,6 @@ variable "project_id" {
   description = "Project ID for these Beautiful Resources"
   type        = string
 }
-variable "region" {
-  description = "Name of the GCP Region for these Wonderful Resources"
-  type        = string
-  default     = null
-}
 variable "name" {
   description = "Name of this Thang"
   type        = string
@@ -25,14 +20,18 @@ variable "create" {
 variable "params" {
   description = "Parameters of this Healthcheck"
   type = object({
-    port         = optional(number, 80)
-    protocol     = optional(string, "HTTP")
-    interval     = optional(number, 10)
-    timeout      = optional(number, 5)
-    request_path = optional(string, "/")
-    response     = optional(string, "OK")
-    regional     = optional(string, false)
-    legacy       = optional(bool, false)
+    port                = optional(number, 80)
+    protocol            = optional(string, "TCP")
+    interval            = optional(number, 10)
+    timeout             = optional(number, 5)
+    healthy_threshold   = optional(number, 2)
+    unhealthy_threshold = optional(number, 2)
+    request_path        = optional(string, "/")
+    response            = optional(string, "OK")
+    regional            = optional(string, false)
+    region              = optional(string)
+    legacy              = optional(bool, false)
+    logging             = optional(bool, false)
   })
   default = {}
 }

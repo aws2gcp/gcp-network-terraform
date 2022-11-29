@@ -2,11 +2,6 @@ variable "project_id" {
   description = "Project ID for these Beautiful Resources"
   type        = string
 }
-variable "region" {
-  description = "Name of the GCP Region for these Wonderful Resources"
-  type        = string
-  default     = null
-}
 variable "name" {
   description = "Name of this Thang"
   type        = string
@@ -25,8 +20,7 @@ variable "create" {
 variable "params" {
   description = "Parameters for this GCS Bucket"
   type = object({
-    name           = optional(string)
-    location       = optional(string, "US")
+    location       = optional(string)
     region         = optional(string)
     class          = optional(string, "STANDARD")
     access_control = optional(string, "UNIFORM")

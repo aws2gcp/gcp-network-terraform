@@ -26,11 +26,13 @@ variable "params" {
   type = object({
     ip_address            = optional(string)
     fqdn                  = optional(string)
-    port                  = optional(number, 443) # Only used by inegs
+    port                  = optional(number)
+    protocol              = optional(string)
     cloud_function_name   = optional(string)
     cloud_run_name        = optional(string)
     app_engine_service    = optional(string)
     app_engine_version_id = optional(string)
+    region                = optional(string)
   })
   default = {}
 }

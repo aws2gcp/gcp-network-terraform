@@ -10,16 +10,16 @@ locals {
   max_utilization       = try(var.params.max_utilization, local.balancing_mode == "UTILIZATION" ? 0.8 : null)
   max_rate_per_instance = try(var.params.max_rate_per_instance, local.balancing_mode == "RATE" ? 500 : null)
   max_connections       = local.lb_scheme == "EXTERNAL_MANAGED" ? 1024 : null
-  capacity_scaler       = local.lb_scheme == "INTERNAL_MANAGED" ? 1.0 : null
+  capacity_scaler       = endswith(local.lb_scheme, "_MANAGED") ? 1.0 : null
   locality_lb_policy    = try(var.params.locality_lb_policy, local.lb_scheme == "INTERNAL_MANAGED" ? "ROUND_ROBIN" : null, null)
   affinity_type         = coalesce(var.params.affinity_type, local.lb_scheme == "INTERNAL" ? "CLIENT_IP_PORT_PROTO" : "NONE")
   lb_scheme             = local.protocol == "TCP" ? local.type : local.http_lb_scheme
   http_lb_scheme        = local.type == "INTERNAL" ? "INTERNAL_MANAGED" : var.params.classic == true ? "EXTERNAL" : "EXTERNAL_MANAGED"
   timeout               = coalesce(var.params.timeout, 30)
-  neg_prefix            = "projects/${var.project_id}/${var.region == null ? "global/" : "regions/${var.region}"}/networkEndpointGroups"
-  neg_id                = try(var.params.neg_id, "${local.neg_prefix}/${var.params.neg_name}", null)
+  neg_prefix            = "projects/${var.project_id}/${local.is_regional ? "regions/${var.params.region}" : "global"}/networkEndpointGroups"
+  neg_id                = var.params.neg_name != null ? "${local.neg_prefix}/${var.params.neg_name}" : null
   hc_prefix             = "projects/${var.project_id}/global/healthChecks"
-  use_healthchecks      = !local.is_neg ? true : false
+  use_healthchecks      = !local.is_neg && !local.is_bucket ? true : false
   healthcheck_id        = local.use_healthchecks ? var.params.healthcheck_id : null
   healthcheck_name      = local.use_healthchecks && var.params.healthcheck_name != null ? "${local.hc_prefix}/${var.params.healthcheck_name}" : null
   enable_logging        = coalesce(var.params.enable_logging, false)
@@ -40,13 +40,13 @@ resource "google_compute_instance_group_named_port" "default" {
 # Create basic TCP healthcheck if healthcheck name or IDs not provided
 module "auto_healthcheck" {
   source = "../healthchecks"
-  create = local.use_healthchecks && local.healthcheck_id == null && local.healthcheck_id == null ? true : false
+  create = local.use_healthchecks && local.healthcheck_id == null ? true : false
   name   = "${local.name}-${var.params.port}"
-  region = local.is_regional ? var.region : null
   params = {
     protocol = "tcp"
     port     = var.params.port
     regional = local.is_regional
+    region   = var.params.region
   }
   project_id = var.project_id
 }
@@ -54,14 +54,15 @@ module "auto_healthcheck" {
 locals {
   healthcheck = module.auto_healthcheck.id
 }
+
 # Target Pools
 resource "google_compute_target_pool" "default" {
-  count            = var.create && var.params.use_target_pools ? 1 : 0
-  name             = local.name
-  region           = var.region
-  instances        = var.params.instance_ids
+  count  = var.create && var.params.use_target_pools ? 1 : 0
+  name   = local.name
+  region = var.params.region
+  #instances        = var.params.instance_ids
   health_checks    = local.use_healthchecks ? [local.healthcheck] : null
-  session_affinity = "NONE"
+  session_affinity = local.affinity_type
   project          = var.project_id
 }
 
@@ -89,7 +90,8 @@ resource "google_compute_backend_service" "default" {
   dynamic "backend" {
     for_each = local.is_neg ? [true] : []
     content {
-      group = local.neg_id
+      group           = local.neg_id
+      capacity_scaler = local.capacity_scaler
     }
   }
   dynamic "log_config" {
@@ -109,7 +111,7 @@ resource "google_compute_region_backend_service" "default" {
   count                 = var.create && local.is_service && local.is_regional ? 1 : 0
   name                  = local.name
   description           = local.description
-  region                = var.region
+  region                = var.params.region
   load_balancing_scheme = local.lb_scheme
   port_name             = local.port_name
   protocol              = local.protocol
@@ -129,7 +131,8 @@ resource "google_compute_region_backend_service" "default" {
   dynamic "backend" {
     for_each = local.is_neg ? [true] : []
     content {
-      group = local.neg_id
+      group           = local.neg_id
+      capacity_scaler = local.capacity_scaler
     }
   }
   dynamic "log_config" {

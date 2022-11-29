@@ -3,11 +3,11 @@ locals {
   name                     = lower(coalesce(var.name, local.generated_name))
   name_prefix              = "${local.name}-"
   description              = try(lower(var.description), null)
-  is_global                = var.region == null || !var.params.regional ? true : false
-  is_regional              = var.region != null && var.params.regional ? true : false
+  is_global                = !var.params.regional || var.params.region == null ? true : false
+  is_regional              = var.params.regional && var.params.region != null ? true : false
   upload_ssl_certs         = var.params.certificate != null && var.params.private_key != null ? true : false
-  create_google_ssl_certs  = var.params.domains == null ? false : length(var.params.domains) > 0 ? true : false
-  create_self_signed_cert  = local.upload_ssl_certs || local.create_google_ssl_certs ? false : true
+  create_google_ssl_certs  = local.create && var.params.domains == null ? false : length(var.params.domains) > 0 ? true : false
+  create_self_signed_cert  = local.create && !local.create_google_ssl_certs && !local.upload_ssl_certs ? true : false
   generated_name           = local.create_google_ssl_certs ? replace(var.params.domains[0], ".", "-") : local.self_signed_cert_domain
   self_signed_valid_hours  = coalesce(var.params.self_signed_valid_hours, 24 * local.self_signed_valid_days)
   self_signed_valid_days   = coalesce(var.params.self_signed_valid_days, 365 * local.self_signed_valid_years)
@@ -18,6 +18,8 @@ locals {
   self_signed_cert_org     = "Intended for demonstration purposes or temporary use"
   self_signed_allowed_uses = ["key_encipherment", "digital_signature", "server_auth"]
   #ssl_certificates    = local.upload_ssl_certs ? [for k, v in var.params.ssl_certi    ficates : google_compute_ssl_certificate.default[k].id] : null
+  private_key = local.upload_ssl_certs ? file("${path.module}/${var.params.private_key}") : null
+  certificate = local.upload_ssl_certs ? file("${path.module}/${var.params.certificate}") : null
 }
 
 # If required, create RSA private key
@@ -45,8 +47,8 @@ resource "google_compute_ssl_certificate" "default" {
   name        = local.upload_ssl_certs ? local.name : null
   name_prefix = local.create_self_signed_cert ? local.name_prefix : null
   description = local.description
-  private_key = var.params.private_key != null ? file("${path.module}/${var.params.private_key}") : one(tls_private_key.default).private_key_pem
-  certificate = var.params.certificate != null ? file("${path.module}/${var.params.certificate}") : one(tls_self_signed_cert.default).cert_pem
+  certificate = local.upload_ssl_certs ? local.certificate : one(tls_self_signed_cert.default).cert_pem
+  private_key = local.upload_ssl_certs ? local.private_key : one(tls_private_key.default).private_key_pem
   lifecycle {
     create_before_destroy = true
   }
@@ -59,12 +61,12 @@ resource "google_compute_region_ssl_certificate" "default" {
   name        = local.upload_ssl_certs ? local.name : null
   name_prefix = local.create_self_signed_cert ? local.name_prefix : null
   description = local.description
-  region      = var.region
-  private_key = var.params.private_key != null ? file("${path.module}/${var.params.private_key}") : one(tls_private_key.default).private_key_pem
-  certificate = var.params.certificate != null ? file("${path.module}/${var.params.certificate}") : one(tls_self_signed_cert.default).cert_pem
+  certificate = local.upload_ssl_certs ? local.certificate : one(tls_self_signed_cert.default).cert_pem
+  private_key = local.upload_ssl_certs ? local.private_key : one(tls_private_key.default).private_key_pem
   lifecycle {
     create_before_destroy = true
   }
+  region  = var.params.region
   project = var.project_id
 }
 
