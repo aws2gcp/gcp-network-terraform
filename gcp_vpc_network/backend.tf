@@ -1,7 +1,7 @@
 terraform {
   backend "gcs" {
-    bucket  = "private-j5-org"
-    prefix  = "terraform"
+    bucket = "private-j5-org"
+    prefix = "terraform"
   }
 }
 
