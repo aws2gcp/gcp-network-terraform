@@ -9,5 +9,5 @@ backend.tf
 *.tfstate.backup
 *.tfplan
 .terraform/
-.terraform.*
 .terraform.lock.hcl
+.idea/
