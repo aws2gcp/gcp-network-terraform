@@ -4,7 +4,6 @@ module "buckets" {
   source   = "../modules/buckets"
   for_each = var.buckets
   name     = each.value.name
-  #description = each.value.description
   params = merge(var.bucket_defaults, each.value, {
     region = try(coalesce(each.value.region, var.region), null)
   })
@@ -84,8 +83,8 @@ module "backends" {
   description = each.value.description
   params = merge(var.backend_defaults, each.value, {
     region      = try(coalesce(each.value.region, var.backend_defaults.region, var.region), null)
-    bucket_name = each.value.bucket_name != null ? each.value.bucket_name : try(module.buckets[each.value.bucket].name, null)
-    neg_id      = try(module.negs[each.value.neg_name].id, null)
+    #bucket_name = each.value.bucket_name != null ? each.value.bucket_name : try(module.buckets[each.value.bucket].name, null)
+    #neg_id      = try(module.negs[each.value.neg_name].id, null)
   })
   project_id = var.project_id
   depends_on = [module.instances, module.negs, module.buckets]
