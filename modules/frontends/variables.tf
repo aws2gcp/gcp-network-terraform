@@ -2,11 +2,6 @@ variable "project_id" {
   description = "Project ID for these Beautiful Resources"
   type        = string
 }
-variable "region" {
-  description = "Name of the GCP Region for these Wonderful Resources"
-  type        = string
-  default     = null
-}
 variable "name" {
   description = "Name of this Thang"
   type        = string
@@ -43,9 +38,11 @@ variable "params" {
     enable_https           = optional(bool, false)
     redirect_to_https      = optional(bool, false)
     redirect_response_code = optional(number)
+    strip_query_on_redirect = optional(bool, true)
     region                 = optional(string)
     target_id              = optional(string)
     use_target_pools       = optional(bool, false)
+    default_backend = optional(string)
     route_rules = optional(list(object({
       hostnames = list(string)
       backend   = optional(string)
@@ -54,6 +51,7 @@ variable "params" {
         backend = string
       })))
     })))
+    ssl_certs = optional(list(string))
     ssl_certificates = optional(map(object({
       description = optional(string)
       domains     = optional(list(string))

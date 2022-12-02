@@ -1,6 +1,6 @@
-# Global Frontend Adresses
+# Global Frontend Addresses
 resource "google_compute_global_address" "default" {
-  count        = var.create && local.is_global ? 1 : 0
+  count        = local.create && local.is_global ? 1 : 0
   name         = local.name
   description  = local.description
   network      = var.params.vpc_network_name
@@ -12,13 +12,13 @@ resource "google_compute_global_address" "default" {
 
 # Regional Frontend Addresses
 resource "google_compute_address" "default" {
-  count         = var.create && local.is_regional ? 1 : 0
+  count         = local.create && local.is_regional ? 1 : 0
   name          = local.name
   description   = local.description
   address       = var.params.ip_address
   prefix_length = 0
   address_type  = local.type
-  region        = var.region
+  region        = var.params.region
   subnetwork    = local.type == "INTERNAL" ? local.subnet_id : null
   purpose       = local.purpose
   network_tier  = local.network_tier

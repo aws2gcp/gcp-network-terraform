@@ -82,8 +82,10 @@ module "backends" {
   name        = coalesce(each.value.name, "${var.naming_prefix}-${each.key}")
   description = each.value.description
   params = merge(var.backend_defaults, each.value, {
-    region      = try(coalesce(each.value.region, var.backend_defaults.region, var.region), null)
-    #bucket_name = each.value.bucket_name != null ? each.value.bucket_name : try(module.buckets[each.value.bucket].name, null)
+    region      = each.value.region
+    bucket_name = each.value.bucket_name != null ? each.value.bucket_name : null
+    neg_name    = each.value.neg_name
+    neg_region  = each.value.neg_region
     #neg_id      = try(module.negs[each.value.neg_name].id, null)
   })
   project_id = var.project_id
@@ -104,10 +106,11 @@ module "ssl-certs" {
 module "frontends" {
   source      = "../modules/frontends"
   for_each    = var.frontends
-  project_id  = var.project_id
   name        = "${var.naming_prefix}-${each.key}"
   description = each.value.description
-  params      = merge(var.frontend_defaults, each.value)
-  #depends_on  = [module.backends]
+  params = merge(var.frontend_defaults, each.value
+  )
+  project_id = var.project_id
+  depends_on = [module.backends]
 }
 

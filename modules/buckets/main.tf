@@ -1,6 +1,6 @@
 locals {
   create_bucket          = var.create
-  name                   = local.use_random_name ? lower(random_string.bucket_name[0].result) : lower(var.name)
+  name                   = local.use_random_name ? try(lower(one(random_string.bucket_name).result), null) : lower(var.name)
   description            = try(lower(var.description), null)
   use_random_name        = var.name == null ? true : false
   location               = upper(coalesce(var.params.location, var.params.region, "us"))

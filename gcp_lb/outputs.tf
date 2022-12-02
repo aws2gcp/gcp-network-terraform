@@ -32,15 +32,18 @@ output "negs" {
     }
   }
 }
-/*
 output "backends" {
   value = {
     for k, v in module.backends : k => {
-      lb_scheme = v.lb_scheme
-      protocol  = v.protocol
+      lb_scheme      = v.lb_scheme
+      balancing_mode = v.balancing_mode
+      protocol       = v.protocol
+      affinity_type  = v.affinity_type
+      healthcheck_id = v.healthcheck_id
     }
   }
 }
+/*
 output "frontends" {
   value = {
     for k, v in module.frontends : k => {

@@ -235,6 +235,7 @@ variable "backends" {
     description = optional(string)
     type        = optional(string)
     neg_name    = optional(string)
+    neg_region  = optional(string)
     port        = optional(number)
     port_name   = optional(string)
     protocol    = optional(string)
@@ -254,7 +255,7 @@ variable "backends" {
     cdn_cache_mode    = optional(string)
     bucket            = optional(string)
     bucket_name       = optional(string)
-    auto_scale        = optional(bool)
+    classic           = optional(bool)
   }))
   default = {}
 }
@@ -283,9 +284,12 @@ variable "frontends" {
   description = "Map of frontends (forwarding rules)"
   type = map(object({
     create                       = optional(bool, true)
+    description                  = optional(string)
     type                         = optional(string)
     protocol                     = optional(string)
     region                       = optional(string)
+    vpc_network_name             = optional(string)
+    network_project_id           = optional(string)
     subnet_name                  = optional(string)
     ip_address                   = optional(string)
     port                         = optional(number)
@@ -294,11 +298,10 @@ variable "frontends" {
     https_port                   = optional(number)
     allow_global_access          = optional(bool)
     use_target_pools             = optional(bool)
-    network_project_id           = optional(string)
     enable_http                  = optional(bool)
     enable_https                 = optional(bool)
     redirect_http_to_https       = optional(bool)
-    ssl_certificates             = optional(list(string))
+    ssl_certs                    = optional(list(string))
     psc_name                     = optional(string)
     psc_subnet_names             = optional(list(string))
     psc_auto_accept_all_projects = optional(bool)
