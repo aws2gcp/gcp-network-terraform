@@ -11,3 +11,7 @@ backend.tf
 *.tfplan
 .terraform/
 .terraform.*
+.terraform.lock.hcl
+*.crt
+*.key
+*.pem
