@@ -34,10 +34,10 @@ variable "purpose" {
   description = "Subnet Purpose"
   type        = string
   default     = "PRIVATE"
-  validation {
-    condition     = contains(["PRIVATE", "INTERNAL_HTTPS_LOAD_BALANCER", "PRIVATE_SERVICE_CONNECT"], var.purpose)
-    error_message = "Invalid purpose; must be PRIVATE or INTERNAL_HTTPS_LOAD_BALANCER or PRIVATE_SERVICE_CONNECT."
-  }
+  #validation {
+  #  condition     = contains(["PRIVATE", "INTERNAL_HTTPS_LOAD_BALANCER", "PRIVATE_SERVICE_CONNECT"], var.purpose)
+  #  error_message = "Invalid purpose; must be PRIVATE or INTERNAL_HTTPS_LOAD_BALANCER or PRIVATE_SERVICE_CONNECT."
+  #}
 }
 variable "role" {
   description = "If Internal load balancer, active or backup role"

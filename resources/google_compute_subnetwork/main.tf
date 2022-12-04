@@ -6,7 +6,7 @@ resource "google_compute_subnetwork" "default" {
   #stack_type               = var.stack_type
   ip_cidr_range            = var.ip_range
   purpose                  = var.purpose
-  role                     = var.purpose == "INTERNAL_HTTPS_LOAD_BALANCER" ? "ACTIVE" : null
+  role                     = var.purpose == "INTERNAL_HTTPS_LOAD_BALANCER" || var.purpose == "REGIONAL_MANAGED_PROXY" ? "ACTIVE" : null
   private_ip_google_access = local.enable_private_access
   project                  = var.project_id
   dynamic "log_config" {
