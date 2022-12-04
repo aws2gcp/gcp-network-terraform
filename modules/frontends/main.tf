@@ -1,5 +1,5 @@
 locals {
-  create = coalesce(var.create, true)
+  create              = coalesce(var.create, true)
   name                = lower(coalesce(var.name, "tf-frontend"))
   description         = try(lower(var.description), null)
   is_global           = var.params.region == null ? true : false

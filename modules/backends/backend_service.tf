@@ -6,7 +6,7 @@ locals {
   is_external           = local.type == "EXTERNAL" ? true : false
   port_name             = local.use_igs && local.is_http && !local.use_neg ? lower(var.params.port_name) : null
   create_named_port     = local.create && local.use_igs && local.is_http && local.port_name != null ? true : false
-  ig_blancing_mode = upper(coalesce(var.params.balancing_mode, "utilization"))
+  ig_blancing_mode      = upper(coalesce(var.params.balancing_mode, "utilization"))
   balancing_mode        = local.use_neg ? "UTILIZATION" : local.protocol == "TCP" ? "CONNECTION" : null
   max_connections       = local.lb_scheme == "INTERNAL" ? var.params.max_connections : null
   capacity_scaler       = endswith(local.lb_scheme, "_MANAGED") ? var.params.capacity_scaler : null
@@ -81,7 +81,7 @@ resource "google_compute_backend_service" "default" {
   dynamic "backend" {
     for_each = local.use_neg ? [local.neg_id] : local.instance_group_ids
     content {
-              group                 = backend.value
+      group                 = backend.value
       balancing_mode        = local.balancing_mode
       capacity_scaler       = local.capacity_scaler
       max_utilization       = local.max_utilization
