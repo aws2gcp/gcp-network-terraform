@@ -431,15 +431,18 @@ module "instance_instance_groups" {
 
 # DNS Zones
 module "dns_zones" {
-  source           = "../resources/google_dns_managed_zone"
-  for_each         = var.dns_zones
-  project_id       = var.project_id
-  name             = each.key
-  description      = each.value.description
-  dns_name         = each.value.dns_name
-  visibility       = each.value.visibility
-  visible_networks = each.value.visibility == "private" ? coalesce(each.value.visible_networks, [var.vpc_network_name]) : []
-  logging          = each.value.logging
+  source              = "../resources/google_dns_managed_zone"
+  for_each            = var.dns_zones
+  project_id          = var.project_id
+  name                = each.key
+  description         = each.value.description
+  dns_name            = each.value.dns_name
+  visibility          = each.value.visibility
+  visible_networks    = each.value.visibility == "public" ? [] : coalesce(each.value.visible_networks, [var.vpc_network_name])
+  peer_project_id     = each.value.peer_project_id
+  peer_network_name   = each.value.peer_network_name
+  target_name_servers = each.value.target_name_servers
+  logging             = each.value.logging
 }
 
 # DNS Policies
@@ -460,7 +463,7 @@ module "dns_records" {
   project_id = var.project_id
   zone_name  = each.key
   dns_name   = module.dns_zones[each.key].dns_name
-  records    = coalesce(each.value.records, {})
+  records    = coalesce(each.value.records, [])
 }
 
 # Create A records for instances with external DNS

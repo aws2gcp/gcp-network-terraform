@@ -12,12 +12,13 @@ variable "dns_name" {
   type        = string
 }
 variable "records" {
-  type = map(object({
-    type    = string
-    ttl     = number
-    rrdatas = list(string)
+  type = list(object({
+    name    = optional(string)
+    type    = optional(string)
+    ttl     = optional(number)
+    rrdatas = optional(list(string))
   }))
-  default = {}
+  default = []
 }
 variable "default_ttl" {
   type    = number

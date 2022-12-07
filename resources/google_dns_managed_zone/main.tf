@@ -6,18 +6,38 @@ resource "google_dns_managed_zone" "default" {
   dns_name    = var.dns_name
   visibility  = local.visibility
   dynamic "private_visibility_config" {
-    for_each = local.visibility == "private" ? [1] : []
+    for_each = local.visibility == "private" ? [true] : []
     content {
       dynamic "networks" {
         for_each = var.visible_networks
         content {
-          network_url = "${local.network_url_prefix}/${networks.value}"
+          network_url = "${local.network_prefix}/${networks.value}"
         }
       }
     }
   }
+  dynamic "forwarding_config" {
+    for_each = var.target_name_servers != null ? [true] : []
+    content {
+      dynamic "target_name_servers" {
+        for_each = var.target_name_servers
+        content {
+          ipv4_address    = target_name_servers.value
+          forwarding_path = local.visibility == "private" ? "private" : "default"
+        }
+      }
+    }
+  }
+  dynamic "peering_config" {
+    for_each = var.peer_network_name != null ? [true] : []
+    content {
+      target_network {
+        network_url = "${local.peer_network_prefix}/${var.peer_network_name}"
+      }
+    }
+  }
   dynamic "cloud_logging_config" {
-    for_each = var.logging == true ? [0] : []
+    for_each = var.logging != null && var.logging == true ? [true] : []
     content {
       enable_logging = true
     }
@@ -25,6 +45,8 @@ resource "google_dns_managed_zone" "default" {
 }
 
 locals {
-  visibility         = length(var.visible_networks) > 0 ? "private" : lower(coalesce(var.visibility, "public"))
-  network_url_prefix = "projects/${var.project_id}/global/networks"
+  visibility          = length(var.visible_networks) > 0 || var.peer_network_name != null ? "private" : lower(coalesce(var.visibility, "public"))
+  network_prefix      = "projects/${var.project_id}/global/networks"
+  peer_network_prefix = "projects/${local.peer_project_id}/global/networks"
+  peer_project_id     = coalesce(var.peer_project_id, var.project_id)
 }

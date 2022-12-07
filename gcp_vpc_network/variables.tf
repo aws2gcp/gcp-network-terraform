@@ -19,7 +19,7 @@ variable "mtu" {
 variable "dns_ttl" {
   description = "The default DNS TTL when creating records"
   type        = number
-  default     = 60
+  default     = 300
 }
 variable "enable_global_routing" {
   description = "Enable Global Routing (default is Regional)"
@@ -330,12 +330,16 @@ variable "instance_groups" {
 variable "dns_zones" {
   description = "Map of DNS zones"
   type = map(object({
-    dns_name         = string
-    description      = optional(string)
-    visibility       = optional(string)
-    visible_networks = optional(list(string))
-    logging          = optional(bool)
-    records = optional(map(object({
+    dns_name            = string
+    description         = optional(string)
+    visibility          = optional(string)
+    visible_networks    = optional(list(string))
+    peer_project_id     = optional(string)
+    peer_network_name   = optional(string)
+    target_name_servers = optional(list(string))
+    logging             = optional(bool)
+    records = optional(list(object({
+      name    = string
       type    = string
       ttl     = optional(number)
       rrdatas = list(string)
