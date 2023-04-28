@@ -1,10 +1,8 @@
 output "address" {
   value = local.is_global ? google_compute_global_address.default["ipv4"].address : google_compute_address.default["ipv4"].address
-  #one(google_compute_address.default).address
 }
 output "ipv4_address" {
   value = var.enable_ipv4 ? (local.is_global ? google_compute_global_address.default["ipv4"].address : google_compute_address.default["ipv4"].address) : null
-  #one(google_compute_address.default).address
 }
 output "ipv6_address" {
   value = var.enable_ipv6 && local.is_global ? google_compute_global_address.default["ipv6"].address : null
@@ -27,4 +25,5 @@ output "is_classic" { value = local.is_classic }
 output "is_internal" { value = local.is_internal }
 output "is_http" { value = local.is_http }
 output "lb_scheme" { value = local.lb_scheme }
+output "global_access" { value = local.global_access }
 output "psc" { value = local.psc }

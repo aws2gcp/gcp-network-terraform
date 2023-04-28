@@ -132,6 +132,10 @@ variable "service_account_scopes" {
   type    = list(string)
   default = null
 }
+variable "labels" {
+  type    = map(any)
+  default = null
+}
 variable "network_tags" {
   type    = list(string)
   default = null

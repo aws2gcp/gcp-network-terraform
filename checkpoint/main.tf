@@ -37,7 +37,7 @@ locals {
     nic0 = local.is_gateway ? [for n in local.nic0_address_names : "${local.name}-${n}"] : [local.name]
     nic1 = local.is_gateway ? [for n in local.instance_suffixes : "${local.name}-${n}"] : ["${local.name}-2"]
   }
-  # Create a list of objects so it's easier to iterate over
+  # Create a list of objects for the instances so it's easier to iterate over
   instances = [for i, v in local.instance_suffixes : {
     name              = local.is_standalone ? local.name : "${local.name}-${v}"
     zone              = "${var.region}-${local.instance_zones[i]}"
@@ -75,10 +75,20 @@ resource "google_compute_address" "nic1_external_ips" {
   address_type = "EXTERNAL"
 }
 
+# Locals related to the instances
 locals {
-  service_account_scopes = coalescelist(var.service_account_scopes,
-    concat(["https://www.googleapis.com/auth/monitoring.write"], local.is_gateway ?
-    ["https://www.googleapis.com/auth/compute", "https://www.googleapis.com/auth/cloudruntimeconfig"] : [])
+  machine_type     = coalesce(var.machine_type, "n1-standard-4")
+  network_tags     = coalescelist(var.network_tags, local.is_gateway ? ["checkpoint-gateway"] : ["checkpoint-management"])
+  labels           = coalesce(var.labels, {})
+  disk_type        = coalesce(var.disk_type, "pd-ssd")
+  disk_size        = coalesce(var.disk_size, 100)
+  disk_auto_delete = coalesce(var.disk_auto_delete, true)
+  service_account_scopes = coalescelist(
+    var.service_account_scopes,
+    concat(
+      ["https://www.googleapis.com/auth/monitoring.write"],
+      local.is_gateway ? ["https://www.googleapis.com/auth/compute", "https://www.googleapis.com/auth/cloudruntimeconfig"] : []
+    )
   )
   software_version  = coalesce(var.software_version, "R81.10")
   software_code     = lower(replace(local.software_version, ".", ""))
@@ -120,17 +130,18 @@ resource "google_compute_instance" "default" {
   name                      = local.instances[count.index].name
   description               = local.description
   zone                      = local.instances[count.index].zone
-  machine_type              = coalesce(var.machine_type, "n1-standard-4")
-  tags                      = coalescelist(var.network_tags, local.is_gateway ? ["checkpoint-gateway"] : ["checkpoint-management"])
-  can_ip_forward            = true
+  machine_type              = local.machine_type
+  labels                    = local.labels
+  tags                      = local.network_tags
+  can_ip_forward            = local.is_gateway ? true : false
   allow_stopping_for_update = true
   resource_policies         = []
   boot_disk {
-    auto_delete = coalesce(var.disk_auto_delete, true)
+    auto_delete = local.disk_auto_delete
     device_name = "${local.name}-boot"
     initialize_params {
-      type  = coalesce(var.disk_type, "pd-ssd")
-      size  = coalesce(var.disk_size, 100)
+      type  = local.disk_type
+      size  = local.disk_size
       image = local.image
     }
   }
@@ -205,7 +216,7 @@ resource "google_compute_instance" "default" {
     expert_password                = var.expert_password
     proxy_host = var.proxy_host
     proxy_port = coalesce(var.proxy_port, 8080)
-    mgmt_routes = coalesce(var.mgmt_routes, "199.36.8/30")
+    mgmt_routes = coalesce(var.mgmt_routes, "199.36.53.8/30")
     internal_routes =  coalesce(var.internal_routes, "10.0.0.0/8 172.16.0.0/12 192.168.0.0/16")
     */
   })
