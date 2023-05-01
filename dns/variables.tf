@@ -1,7 +1,7 @@
 variable "project_id" {
-  type    = string
+  type        = string
   description = "Default GCP Project ID (can be overridden)"
-  default = null
+  default     = null
 }
 variable "dns_zones" {
   description = "Map of DNS zones"
@@ -33,7 +33,11 @@ variable "dns_policies" {
     description               = optional(string)
     logging                   = optional(bool)
     enable_inbound_forwarding = optional(bool)
-    target_name_servers       = optional(list(string))
+    target_name_servers = optional(list(object({
+      ipv4_address    = optional(string)
+      forwarding_path = optional(string)
+    })))
+    networks = optional(list(string))
   }))
   default = {}
 }

@@ -2,18 +2,18 @@
 locals {
   cloud_nat_addresses = { for k, v in var.cloud_nats : k => [
     for i, nat_address in coalesce(v.static_ips, []) : {
-      name         = coalesce(nat_address.name, "cloudnat-${var.network_name}-${v.region}-${i}")
-      description  = nat_address.description
-      address_type = "EXTERNAL"
-      network_tier = "PREMIUM"
-      region       = v.region
-      address      = nat_address.address
+      project_id  = coalesce(v.project_id, var.project_id)
+      region      = v.region
+      name        = coalesce(nat_address.name, "cloudnat-${var.network_name}-${v.region}-${i}")
+      description = coalesce(nat_address.description, "Managed by Terraform")
+      address     = nat_address.address
     }
   ] if length(coalesce(v.static_ips, [])) > 0 }
   addresses = flatten([
     for k, addresses in local.cloud_nat_addresses : [
       for i, address in coalesce(addresses, []) : merge(address, {
         key = "${k}-${i}"
+
       })
     ]
   ])
@@ -23,8 +23,8 @@ resource "google_compute_address" "default" {
   project      = var.project_id
   name         = each.value.name
   description  = each.value.description
-  address_type = each.value.address_type
-  network_tier = each.value.network_tier
+  address_type = "EXTERNAL"
+  network_tier = "PREMIUM"
   region       = each.value.region
   address      = each.value.address
 }
@@ -90,4 +90,5 @@ resource "google_compute_router_nat" "default" {
   tcp_established_idle_timeout_sec = each.value.tcp_est_idle_timeout
   tcp_transitory_idle_timeout_sec  = each.value.tcp_trans_idle_timeout
   icmp_idle_timeout_sec            = each.value.icmp_idle_timeout
+  depends_on                       = [google_compute_router.default]
 }

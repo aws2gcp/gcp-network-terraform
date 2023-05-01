@@ -1,6 +1,7 @@
 locals {
   ip_ranges = { for k, v in var.ip_ranges : k => merge(v,
     {
+      project_id    = coalesce(v.project_id, var.project_id)
       name          = coalesce(v.name, k)
       address       = element(split("/", v.ip_range), 0)
       prefix_length = element(split("/", v.ip_range), 1)

@@ -32,4 +32,5 @@ resource "google_vpc_access_connector" "default" {
   min_instances  = each.value.min_instances
   max_instances  = each.value.max_instances
   machine_type   = each.value.machine_type
+  depends_on     = [google_compute_subnetwork.default]
 }

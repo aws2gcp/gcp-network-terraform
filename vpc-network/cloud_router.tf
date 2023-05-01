@@ -1,6 +1,7 @@
 locals {
   cloud_routers = { for k, v in var.cloud_routers : k => merge(v,
     {
+      project_id             = coalesce(v.project_id, var.project_id)
       name                   = coalesce(v.name, k)
       bgp_asn                = coalesce(v.bgp_asn, var.defaults.cloud_router_bgp_asn)
       bgp_keepalive_interval = coalesce(v.bgp_keepalive_interval, var.defaults.cloud_router_bgp_keepalive_interval)

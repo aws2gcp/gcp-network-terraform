@@ -33,6 +33,7 @@ variable "service_project_ids" {
 variable "subnets" {
   description = "Subnets in this VPC Network"
   type = map(object({
+    project_id               = optional(string)
     name                     = optional(string)
     description              = optional(string)
     region                   = string
@@ -54,6 +55,7 @@ variable "subnets" {
 variable "routes" {
   description = "Static Routes"
   type = map(object({
+    project_id    = optional(string)
     name          = optional(string)
     description   = optional(string)
     dest_range    = optional(string)
@@ -65,10 +67,10 @@ variable "routes" {
   }))
   default = {}
 }
-
 variable "peerings" {
   description = "VPC Peering Connections"
   type = map(object({
+    project_id                          = optional(string)
     name                                = optional(string)
     peer_project_id                     = optional(string)
     peer_network_name                   = string
@@ -82,6 +84,7 @@ variable "peerings" {
 variable "cloud_routers" {
   description = "Cloud Routers attached to this VPC Network"
   type = map(object({
+    project_id             = optional(string)
     name                   = optional(string)
     description            = optional(string)
     region                 = string
@@ -98,6 +101,7 @@ variable "cloud_routers" {
 variable "cloud_nats" {
   description = "Cloud NATs used by this VPC Network"
   type = map(object({
+    project_id        = optional(string)
     name              = optional(string)
     region            = string
     cloud_router      = optional(string)
@@ -124,6 +128,7 @@ variable "cloud_nats" {
 variable "firewall_rules" {
   description = "Firewall Rules applied to this VPC Network"
   type = map(object({
+    project_id       = optional(string)
     name             = optional(string)
     description      = optional(string)
     priority         = optional(number)
@@ -140,6 +145,7 @@ variable "firewall_rules" {
 variable "ip_ranges" {
   description = "Internal IP address ranges for private service connections"
   type = map(object({
+    project_id  = optional(string)
     name        = optional(string)
     description = optional(string)
     ip_range    = string
@@ -177,6 +183,7 @@ variable "private_service_connects" {
 variable "vpc_access_connectors" {
   description = "Serverless VPC Access Connectors"
   type = map(object({
+    project_id         = optional(string)
     name               = optional(string)
     region             = string
     cidr_range         = optional(string)

@@ -6,9 +6,10 @@ variable "project_id" {
 variable "network_firewall_policies" {
   description = "Map of Network Firewall Policies"
   type = map(object({
-    project_id  = optional(string)
-    name        = optional(string)
-    description = optional(string)
+    project_id   = optional(string)
+    name         = optional(string)
+    description  = optional(string)
+    associations = optional(list(string))
     rules = list(object({
       description    = optional(string)
       priority       = optional(number)
@@ -26,7 +27,7 @@ variable "network_firewall_policies" {
         ports    = optional(list(string))
       })))
     }))
-    associations = optional(list(string))
   }))
-  default = { default = { rules = [] } }
+  default = {}
+  #default = { default = { rules = [] } }
 }

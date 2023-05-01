@@ -3,9 +3,11 @@ locals {
     {
       project_id                = coalesce(v.project_id, var.project_id)
       name                      = coalesce(v.name, k)
-      enable_inbound_forwarding = coalesce(v.enable_inbound_forwarding, false)
+      description               = coalesce(v.description, "Managed by Terraform")
+      enable_inbound_forwarding = coalesce(v.enable_inbound_forwarding, true)
       target_name_servers       = coalesce(v.target_name_servers, [])
       networks                  = coalesce(v.networks, [])
+      logging                   = coalesce(v.logging, false)
     }
   ) }
 }
@@ -24,7 +26,8 @@ resource "google_dns_policy" "default" {
       dynamic "target_name_servers" {
         for_each = each.value.target_name_servers
         content {
-          ipv4_address = target_name_server.value.ipv4_address
+          ipv4_address    = target_name_servers.value.ipv4_address
+          forwarding_path = coalesce(target_name_servers.value.forwarding_path, "default")
         }
       }
     }

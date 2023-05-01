@@ -1,6 +1,7 @@
 locals {
   routes = { for k, v in var.routes : k => merge(v,
     {
+      project_id    = coalesce(v.project_id, var.project_id)
       next_hop_type = can(regex("^[1-2]", v.next_hop)) ? "ip" : "instance"
     }
   ) }
