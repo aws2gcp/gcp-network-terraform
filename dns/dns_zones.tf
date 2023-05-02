@@ -29,7 +29,7 @@ resource "google_dns_managed_zone" "default" {
   dns_name    = each.value.dns_name
   visibility  = each.value.visibility
   dynamic "private_visibility_config" {
-    for_each = each.value.visibility == "private" ? [true] : []
+    for_each = each.value.visibility == "private" && length(each.value.visible_networks) > 0 ? [true] : []
     content {
       dynamic "networks" {
         for_each = each.value.visible_networks
