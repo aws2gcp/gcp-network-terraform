@@ -5,7 +5,7 @@ locals {
       project_id  = coalesce(v.project_id, var.project_id)
       region      = v.region
       name        = coalesce(nat_address.name, "cloudnat-${var.network_name}-${v.region}-${i}")
-      description = coalesce(nat_address.description, "Managed by Terraform")
+      description = coalesce(nat_address.description, "External Static IP for Cloud NAT")
       address     = nat_address.address
     }
   ] if length(coalesce(v.static_ips, [])) > 0 }
@@ -13,12 +13,11 @@ locals {
     for k, addresses in local.cloud_nat_addresses : [
       for i, address in coalesce(addresses, []) : merge(address, {
         key = "${k}-${i}"
-
       })
     ]
   ])
 }
-resource "google_compute_address" "default" {
+resource "google_compute_address" "cloud_nat" {
   for_each     = { for address in local.addresses : "${address.key}" => address }
   project      = var.project_id
   name         = each.value.name
@@ -40,8 +39,8 @@ locals {
       subnets                = coalesce(v.subnets, [])
       enable_dpa             = coalesce(v.enable_dpa, var.defaults.cloud_nat_enable_dpa)
       enable_eim             = coalesce(v.enable_eim, var.defaults.cloud_nat_enable_eim)
-      min_ports_per_vm       = coalesce(v.min_ports_per_vm, v.enable_dpa != false ? 32 : 64)
-      max_ports_per_vm       = v.enable_dpa != false ? coalesce(v.max_ports_per_vm, 65536) : null
+      min_ports_per_vm       = coalesce(v.min_ports_per_vm, var.defaults.cloud_nat_min_ports_per_vm, v.enable_dpa != false ? 32 : 64)
+      max_ports_per_vm       = v.enable_dpa != false ? coalesce(v.max_ports_per_vm, var.defaults.cloud_nat_max_ports_per_vm, 65536) : null
       log_type               = lower(coalesce(v.log_type, "none"))
       udp_idle_timeout       = coalesce(v.udp_idle_timeout, var.defaults.cloud_nat_udp_idle_timeout)
       tcp_est_idle_timeout   = coalesce(v.tcp_established_idle_timeout, var.defaults.cloud_nat_tcp_established_idle_timeout)
@@ -90,5 +89,5 @@ resource "google_compute_router_nat" "default" {
   tcp_established_idle_timeout_sec = each.value.tcp_est_idle_timeout
   tcp_transitory_idle_timeout_sec  = each.value.tcp_trans_idle_timeout
   icmp_idle_timeout_sec            = each.value.icmp_idle_timeout
-  depends_on                       = [google_compute_router.default]
+  depends_on                       = [google_compute_router.default, google_compute_address.cloud_nat]
 }
