@@ -11,11 +11,14 @@ variable "network_firewall_policies" {
     description  = optional(string)
     associations = optional(list(string))
     rules = list(object({
+      name           = optional(string)
       description    = optional(string)
       priority       = optional(number)
       direction      = optional(string)
       action         = optional(bool)
-      enable_logging = optional(bool)
+      logging        = optional(bool)
+      ranges         = optional(list(string))
+      disabled       = optional(bool)
       src_ip_ranges  = optional(list(string))
       dest_ip_ranges = optional(list(string))
       allow = optional(list(object({
@@ -29,5 +32,4 @@ variable "network_firewall_policies" {
     }))
   }))
   default = {}
-  #default = { default = { rules = [] } }
 }
