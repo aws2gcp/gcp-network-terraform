@@ -40,13 +40,13 @@ resource "google_dns_managed_zone" "default" {
     }
   }
   dynamic "forwarding_config" {
-    for_each = length(each.value.target_name_servers) > 0 ? [true] : []
+    for_each = each.value.visibility == "private" && length(each.value.target_name_servers) > 0 ? [true] : []
     content {
       dynamic "target_name_servers" {
         for_each = each.value.target_name_servers
         content {
-          ipv4_address    = target_name_servers.value
-          forwarding_path = each.value.visibility == "private" ? "private" : "default"
+          ipv4_address    = target_name_servers.value.ipv4_address
+          forwarding_path = coalesce(target_name_servers.value.forwarding_path, "default")
         }
       }
     }
