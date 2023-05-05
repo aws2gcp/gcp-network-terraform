@@ -25,6 +25,7 @@
 | enable_global_routing |       | `bool`   | false |
 | auto_create_subnetworks |       | `bool`   | false |
 | service_project_ids |       | `list(string)`   | [] |
+| region | Default region for all resources | `string` | n/a |
 
 
 ## Subnets

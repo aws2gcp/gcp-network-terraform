@@ -2,6 +2,7 @@ locals {
   vpc_access_connectors = { for k, v in var.vpc_access_connectors : k => merge(v,
     {
       name           = coalesce(v.name, k)
+      region         = coalesce(v.region, var.region)
       network        = v.subnet_name == null ? google_compute_network.default.name : null
       min_throughput = coalesce(v.min_throughput, 200)
       max_throughput = coalesce(v.max_throughput, 1000)

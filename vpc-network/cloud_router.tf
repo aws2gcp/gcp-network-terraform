@@ -3,6 +3,8 @@ locals {
     {
       project_id             = coalesce(v.project_id, var.project_id)
       name                   = coalesce(v.name, k)
+      description            = coalesce(nat_address.description, "Managed by Terraform")
+      region                 = coalesce(v.region, var.region)
       bgp_asn                = coalesce(v.bgp_asn, var.defaults.cloud_router_bgp_asn)
       bgp_keepalive_interval = coalesce(v.bgp_keepalive_interval, var.defaults.cloud_router_bgp_keepalive_interval)
       advertise_mode         = length(coalesce(v.advertised_ip_ranges, [])) > 0 ? "CUSTOM" : "DEFAULT"

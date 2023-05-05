@@ -3,6 +3,7 @@ locals {
     {
       name                 = coalesce(v.name, k)
       purpose              = upper(coalesce(v.purpose, "PRIVATE"))
+      region               = coalesce(v.region, var.region)
       private_access       = coalesce(v.private_access, var.defaults.subnet_private_access)
       aggregation_interval = coalesce(v.log_aggregation_interval, var.defaults.subnet_log_aggregation_interval)
       flow_sampling        = coalesce(v.log_sampling_rate, var.defaults.subnet_log_sampling_rate)

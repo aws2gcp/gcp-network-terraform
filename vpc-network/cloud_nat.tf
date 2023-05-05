@@ -3,7 +3,7 @@ locals {
   cloud_nat_addresses = { for k, v in var.cloud_nats : k => [
     for i, nat_address in coalesce(v.static_ips, []) : {
       project_id  = coalesce(v.project_id, var.project_id)
-      region      = v.region
+      region      = coalesce(v.region, var.region)
       name        = coalesce(nat_address.name, "cloudnat-${var.network_name}-${v.region}-${i}")
       description = coalesce(nat_address.description, "External Static IP for Cloud NAT")
       address     = nat_address.address

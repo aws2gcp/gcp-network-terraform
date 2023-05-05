@@ -25,6 +25,11 @@ variable "auto_create_subnetworks" {
   type    = bool
   default = null
 }
+variable "region"{
+description = "Default region for all resources (can be overriden)"
+type = string
+default = null
+}
 variable "service_project_ids" {
   description = "For Shared VPC, list of service projects to share this network to"
   type        = list(string)
