@@ -7,18 +7,19 @@ locals {
     labels       = coalesce(v.labels, {})
   } }
   redundancy_types = {
-    1 = "SINGLE_IP_INTERNALLY_REDUNDANT",
-    2 = "TWO_IPS_REDUNDANCY",
-    3 = "TWO_IPS_REDUNDANCY",
+    1 = "SINGLE_IP_INTERNALLY_REDUNDANT"
+    2 = "TWO_IPS_REDUNDANCY"
     4 = "FOUR_IPS_REDUNDANCY"
   }
 }
 
+# Peer (External) VPN Gateway
 resource "google_compute_external_vpn_gateway" "default" {
   for_each        = local.peer_vpn_gateways
   project         = each.value.project_id
   name            = each.value.name
   description     = each.value.description
+  labels          = each.value.labels
   redundancy_type = lookup(local.redundancy_types, length(each.value.ip_addresses), "TWO_IPS_REDUNDANCY")
   dynamic "interface" {
     for_each = each.value.ip_addresses
@@ -27,7 +28,4 @@ resource "google_compute_external_vpn_gateway" "default" {
       ip_address = interface.value
     }
   }
-  labels = each.value.labels
 }
-
-

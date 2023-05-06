@@ -1,19 +1,20 @@
 locals {
   interconnect_attachments = flatten([
     for k, v in var.interconnects : [
-      for i, circuit in v.ciruits : {
-        key               = "interconnect-${k}-{i}"
-        type              = "interconnect"
-        project_id        = coalesce(v.project_id, var.project_id)
-        name              = coalesce(v.name, k)
-        description       = v.description
+      for i, circuit in v.ciruits : merge(v, {
+        is_interconnect = true
+        is_vpn          = false
+        key             = "interconnect-${k}-{i}"
+        project_id      = coalesce(v.project_id, var.project_id)
+        name            = coalesce(v.name, k)
+        #description       = v.description
         region            = coalesce(v.region, var.region)
         interconnect_type = upper(coalesce(v.type, "PARTNER"))
-        interconnect      = v.interconnect
-        ip_range          = circuit.cloud_router_ip
-        mtu               = coalesce(circuit.mtu, v.mtu, 1440)
-        enable            = coalesce(circuit.enable, true)
-      }
+        #interconnect      = v.interconnect
+        #ip_range          = circuit.cloud_router_ip
+        mtu    = coalesce(circuit.mtu, v.mtu, 1440)
+        enable = coalesce(circuit.enable, true)
+      })
     ]
   ])
 }

@@ -1,8 +1,9 @@
 locals {
   vpn_tunnels = flatten([for k, v in var.vpns : [
-    for i, tunnel in v.tunnels : {
+    for i, tunnel in v.tunnels : merge(v, {
       key                             = "vpn-${k}-${i}"
-      type                            = "vpn"
+      is_vpn                          = true
+      is_interconnect                 = false
       project_id                      = coalesce(v.project_id, var.project_id)
       region                          = coalesce(v.region, var.region)
       router                          = v.cloud_router_name
@@ -17,18 +18,18 @@ locals {
       ike_version                     = coalesce(tunnel.ike_version, 2)
       vpn_gateway_interface           = coalesce(tunnel.interface_index, i)
       peer_external_gateway_interface = coalesce(tunnel.interface_index, i)
-      advertised_ip_ranges            = coalesce(tunnel.advertised_ip_ranges, v.advertised_ip_ranges, [])
-      advertised_groups               = coalesce(tunnel.advertised_groups, v.advertised_groups, [])
-      advertised_priority             = coalesce(tunnel.advertised_priority, v.advertised_priority, 100)
-      bgp_name                        = tunnel.bgp_name
-      peer_ip_address                 = tunnel.bgp_peer_ip
-      peer_asn                        = coalesce(tunnel.peer_bgp_asn, v.peer_bgp_asn, 65000)
-      enable_bfd                      = coalesce(tunnel.enable_bfd, v.enable_bfd, false)
-      bfd_min_transmit_interval       = 1000
-      bfd_min_receive_interval        = 1000
-      bfd_multiplier                  = v.bfd_multiplier
-      enable                          = coalesce(tunnel.enable, true)
-    }
+      #advertised_ip_ranges            = coalesce(tunnel.advertised_ip_ranges, v.advertised_ip_ranges, [])
+      #advertised_groups               = coalesce(tunnel.advertised_groups, v.advertised_groups, [])
+      #advertised_priority             = coalesce(tunnel.advertised_priority, v.advertised_priority, 100)
+      #bgp_name                        = tunnel.bgp_name
+      peer_ip_address           = tunnel.bgp_peer_ip
+      peer_asn                  = coalesce(tunnel.peer_bgp_asn, v.peer_bgp_asn, 65000)
+      enable_bfd                = coalesce(tunnel.enable_bfd, v.enable_bfd, false)
+      bfd_min_transmit_interval = 1000
+      bfd_min_receive_interval  = 1000
+      bfd_multiplier            = v.bfd_multiplier
+      enable                    = coalesce(tunnel.enable, true)
+    })
   ]])
 }
 
@@ -40,11 +41,12 @@ resource "random_string" "ike_psks" {
 }
 
 locals {
+  default_psk = "abcdefgji01234567890"
   vpn_tunnels_with_psks = [for vpn_tunnel in local.vpn_tunnels : merge(vpn_tunnel, {
     shared_secret = coalesce(
       vpn_tunnel.ike_psk,
       try(resource.random_string.ike_psks[vpn_tunnel.key].value, null),
-      "abcdefgji01234567890",
+      local.default_psk,
     )
   })]
 }
@@ -61,5 +63,5 @@ resource "google_compute_vpn_tunnel" "default" {
   ike_version                     = each.value.ike_version
   vpn_gateway_interface           = each.value.vpn_gateway_interface
   peer_external_gateway_interface = each.value.peer_external_gateway_interface
-  depends_on                      = [google_compute_external_vpn_gateway.default, google_compute_ha_vpn_gateway.default]
+  depends_on                      = [google_compute_ha_vpn_gateway.default, google_compute_external_vpn_gateway.default]
 }

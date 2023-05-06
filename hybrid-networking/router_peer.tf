@@ -1,6 +1,8 @@
 locals {
   router_peers = [for k, v in local.router_interfaces : merge(v, {
-    advertise_mode            = length(v.advertised_ip_ranges) > 0 ? "CUSTOM" : "DEFAULT"
+    advertise_mode            = length(coalesce(v.advertised_ip_ranges, [])) > 0 ? "CUSTOM" : "DEFAULT"
+    advertised_ip_ranges      = coalesce(v.advertised_ip_ranges, [])
+    peer_asn                  = coalesce(v.peer_asn, 65000)
     enable_bfd                = coalesce(v.enable_bfd, false)
     bfd_min_transmit_interval = coalesce(v.bfd_min_transmit_interval, 1000)
     bfd_min_receive_interval  = coalesce(v.bfd_min_receive_interval, 1000)
@@ -24,7 +26,8 @@ resource "google_compute_router_peer" "default" {
   dynamic "advertised_ip_ranges" {
     for_each = each.value.advertised_ip_ranges
     content {
-      range = advertised_ip_ranges.value
+      range       = advertised_ip_ranges.value.range
+      description = advertised_ip_ranges.value.description
     }
   }
   dynamic "bfd" {
@@ -36,5 +39,6 @@ resource "google_compute_router_peer" "default" {
       session_initialization_mode = "ACTIVE"
     }
   }
-  enable = each.value.enable
+  enable     = each.value.enable
+  depends_on = [google_compute_router_interface.default]
 }

@@ -15,4 +15,3 @@ resource "google_compute_ha_vpn_gateway" "default" {
   region     = each.value.region
   depends_on = [google_compute_router.default, google_compute_ha_vpn_gateway.default]
 }
-

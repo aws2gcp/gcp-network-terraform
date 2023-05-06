@@ -1,5 +1,7 @@
 # GCP Hybrid Networking
 
+Management of Cloud Routers, Interconnects, and VPNs
+
 ## Resources 
 
 - [google_compute_router](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_router)
