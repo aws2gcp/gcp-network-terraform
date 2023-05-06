@@ -1,3 +1,4 @@
+/*
 locals {
   cloud_routers = { for k, v in var.cloud_routers : k => merge(v,
     {
@@ -35,3 +36,11 @@ resource "google_compute_router" "default" {
   }
 }
 
+*/
+
+module "cloud_routers" {
+  source        = "../hybrid-networking/"
+  project_id    = var.project_id
+  network_name  = var.network_name
+  cloud_routers = var.cloud_routers
+}

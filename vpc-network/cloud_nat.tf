@@ -89,5 +89,5 @@ resource "google_compute_router_nat" "default" {
   tcp_established_idle_timeout_sec = each.value.tcp_est_idle_timeout
   tcp_transitory_idle_timeout_sec  = each.value.tcp_trans_idle_timeout
   icmp_idle_timeout_sec            = each.value.icmp_idle_timeout
-  depends_on                       = [google_compute_router.default, google_compute_address.cloud_nat]
+  depends_on                       = [module.cloud_routers, google_compute_address.cloud_nat]
 }

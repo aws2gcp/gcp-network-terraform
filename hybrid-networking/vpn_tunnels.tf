@@ -20,7 +20,7 @@ locals {
       peer_external_gateway_interface = coalesce(tunnel.interface_index, i)
       #advertised_ip_ranges            = coalesce(tunnel.advertised_ip_ranges, v.advertised_ip_ranges, [])
       #advertised_groups               = coalesce(tunnel.advertised_groups, v.advertised_groups, [])
-      #advertised_priority             = coalesce(tunnel.advertised_priority, v.advertised_priority, 100)
+      advertised_priority = coalesce(tunnel.advertised_priority, v.advertised_priority, 100)
       #bgp_name                        = tunnel.bgp_name
       peer_ip_address           = tunnel.bgp_peer_ip
       peer_asn                  = coalesce(tunnel.peer_bgp_asn, v.peer_bgp_asn, 65000)
@@ -45,7 +45,7 @@ locals {
   vpn_tunnels_with_psks = [for vpn_tunnel in local.vpn_tunnels : merge(vpn_tunnel, {
     shared_secret = coalesce(
       vpn_tunnel.ike_psk,
-      try(resource.random_string.ike_psks[vpn_tunnel.key].value, null),
+      try(resource.random_string.ike_psks[vpn_tunnel.key].result, null),
       local.default_psk,
     )
   })]
