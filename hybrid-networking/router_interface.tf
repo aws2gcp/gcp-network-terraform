@@ -3,8 +3,9 @@ locals {
   vpn_tunnel_names  = { for i, v in local.vpn_tunnels : "${v.key}" => v.name }
 }
 
+# Cloud Router Interface
 resource "google_compute_router_interface" "default" {
-  for_each                = { for i, v in local.router_interfaces : "${v.key}" => v }
+  for_each                = { for i, v in local.router_interfaces : "${v.key}" => v if v.enable == true }
   project                 = each.value.project_id
   name                    = each.value.interface_name
   region                  = each.value.region

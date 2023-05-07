@@ -7,6 +7,7 @@ locals {
   } }
 }
 
+# Cloud HA VPN Gateway
 resource "google_compute_ha_vpn_gateway" "default" {
   for_each   = local.cloud_vpn_gateways
   project    = each.value.project_id

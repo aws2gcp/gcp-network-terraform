@@ -125,6 +125,7 @@ variable "cloud_nats" {
     enable_eim                   = optional(bool)
     udp_idle_timeout             = optional(number)
     tcp_established_idle_timeout = optional(number)
+    tcp_time_wait_timeout        = optional(number)
     tcp_transitory_idle_timeout  = optional(number)
     icmp_idle_timeout            = optional(number)
   }))
@@ -216,10 +217,11 @@ variable "defaults" {
     cloud_nat_enable_eim                   = optional(bool, false)
     cloud_nat_udp_idle_timeout             = optional(number, 30)
     cloud_nat_tcp_established_idle_timeout = optional(number, 1200)
+    cloud_nat_tcp_time_wait_timeout        = optional(number, 120)
     cloud_nat_tcp_transitory_idle_timeout  = optional(number, 30)
     cloud_nat_icmp_idle_timeout            = optional(number, 30)
     cloud_nat_min_ports_per_vm             = optional(number, 64)
-    cloud_nat_max_ports_per_vm             = optional(number, 2048)
+    cloud_nat_max_ports_per_vm             = optional(number, 4096)
   })
   default = {}
 }

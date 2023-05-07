@@ -2,7 +2,7 @@ locals {
   router_peers = [for k, v in local.router_interfaces : merge(v, {
     advertise_mode            = length(coalesce(v.advertised_ip_ranges, [])) > 0 ? "CUSTOM" : "DEFAULT"
     advertised_ip_ranges      = coalesce(v.advertised_ip_ranges, [])
-    peer_asn                  = coalesce(v.peer_asn, 65000)
+    peer_asn                  = coalesce(v.peer_asn, v.peer_is_gcp ? 64512 : 65000)
     enable_bfd                = coalesce(v.enable_bfd, false)
     bfd_min_transmit_interval = coalesce(v.bfd_min_transmit_interval, 1000)
     bfd_min_receive_interval  = coalesce(v.bfd_min_receive_interval, 1000)
@@ -12,7 +12,7 @@ locals {
 }
 
 resource "google_compute_router_peer" "default" {
-  for_each                  = { for i, v in local.router_peers : "${v.key}" => v }
+  for_each                  = { for i, v in local.router_peers : "${v.key}" => v if v.enable == true }
   project                   = each.value.project_id
   name                      = each.value.peer_name
   region                    = each.value.region

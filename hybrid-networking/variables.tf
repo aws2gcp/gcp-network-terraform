@@ -99,19 +99,21 @@ variable "peer_vpn_gateways" {
 variable "vpns" {
   description = "Map of HA VPNs"
   type = map(object({
-    project_id             = optional(string)
-    name                   = optional(string)
-    description            = optional(string)
-    region                 = optional(string)
-    cloud_router           = optional(string)
-    cloud_router_name      = optional(string)
-    cloud_vpn_gateway      = optional(string)
-    cloud_vpn_gateway_name = optional(string)
-    peer_vpn_gateway       = optional(string)
-    peer_vpn_gateway_name  = optional(string)
-    peer_bgp_asn           = optional(number)
-    advertised_priority    = optional(number)
-    advertised_groups      = optional(list(string))
+    project_id                      = optional(string)
+    name                            = optional(string)
+    description                     = optional(string)
+    region                          = optional(string)
+    cloud_router                    = optional(string)
+    cloud_router_name               = optional(string)
+    cloud_vpn_gateway               = optional(string)
+    cloud_vpn_gateway_name          = optional(string)
+    peer_vpn_gateway                = optional(string)
+    peer_vpn_gateway_name           = optional(string)
+    peer_gcp_vpn_gateway_project_id = optional(string)
+    peer_gcp_vpn_gateway_name       = optional(string)
+    peer_bgp_asn                    = optional(number)
+    advertised_priority             = optional(number)
+    advertised_groups               = optional(list(string))
     advertised_ip_ranges = optional(list(object({
       range       = string
       description = optional(string)
@@ -139,5 +141,14 @@ variable "vpns" {
       enable     = optional(bool)
     }))
   }))
+  default = {}
+}
+variable "defaults" {
+  type = object({
+    cloud_router_bgp_asn                = optional(number, 64512)
+    cloud_router_bgp_keepalive_interval = optional(number, 20)
+    vpn_ike_version                     = optional(number, 2)
+    vpn_ike_psk                         = optional(string, "abcdefgji01234567890")
+  })
   default = {}
 }

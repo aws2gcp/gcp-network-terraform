@@ -1,5 +1,5 @@
 locals {
-  subnets = { for k, v in var.subnets : k => merge(v,
+  subnets_1 = { for k, v in var.subnets : k => merge(v,
     {
       name                 = coalesce(v.name, k)
       purpose              = upper(coalesce(v.purpose, "PRIVATE"))
@@ -12,8 +12,8 @@ locals {
       stack_type           = upper(coalesce(v.stack_type, var.defaults.subnet_stack_type))
     }
   ) }
-  subnets_with_type = {
-    for k, v in local.subnets : k => merge(v, {
+  subnets = {
+    for k, v in local.subnets_1 : k => merge(v, {
       is_private    = v.purpose == "PRIVATE" ? true : false
       is_proxy_only = contains(["INTERNAL_HTTPS_LOAD_BALANCER", "REGIONAL_MANAGED_PROXY"], v.purpose) ? true : false
     })
@@ -21,7 +21,7 @@ locals {
 }
 
 resource "google_compute_subnetwork" "default" {
-  for_each                 = local.subnets_with_type
+  for_each                 = local.subnets
   project                  = var.project_id
   network                  = google_compute_network.default.name
   name                     = each.value.name
