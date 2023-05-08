@@ -12,7 +12,7 @@ locals {
       peer_gcp_vpn_gateway_project_id = coalesce(v.peer_gcp_vpn_gateway_project_id, v.project_id, var.project_id)
       peer_gcp_vpn_gateway_name       = v.peer_gcp_vpn_gateway_name
       peer_external_gateway           = try(coalesce(v.peer_vpn_gateway_name, try(local.peer_vpn_gateways[v.peer_vpn_gateway].name, null)), null)
-      name                            = coalesce(tunnel.name, "${k}-${i}")
+      name                            = coalesce(tunnel.name, v.name != null ? "${v.name}-${i}" : null, "${k}-${i}")
       description                     = try(coalesce(tunnel.description, v.description), null)
       ip_range                        = tunnel.cloud_router_ip
       interface_name                  = coalesce(tunnel.interface_name, "vpn-${k}-${i}")
