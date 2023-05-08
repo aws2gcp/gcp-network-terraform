@@ -41,7 +41,7 @@ variable "subnets" {
     project_id               = optional(string)
     name                     = optional(string)
     description              = optional(string)
-    region                   = string
+    region                   = optional(string)
     stack_type               = optional(string)
     ip_range                 = string
     purpose                  = optional(string)
@@ -108,7 +108,7 @@ variable "cloud_nats" {
   type = map(object({
     project_id        = optional(string)
     name              = optional(string)
-    region            = string
+    region            = optional(string)
     cloud_router      = optional(string)
     cloud_router_name = optional(string)
     subnets           = optional(list(string))
