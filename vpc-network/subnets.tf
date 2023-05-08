@@ -1,6 +1,7 @@
 locals {
   subnets_1 = { for k, v in var.subnets : k => merge(v,
     {
+      project_id           = coalesce(v.project_id, var.project_id)
       name                 = coalesce(v.name, k)
       purpose              = upper(coalesce(v.purpose, "PRIVATE"))
       region               = coalesce(v.region, var.region)
@@ -10,6 +11,7 @@ locals {
       log_metadata         = "INCLUDE_ALL_METADATA"
       flow_logs            = coalesce(v.flow_logs, var.defaults.subnet_flow_logs)
       stack_type           = upper(coalesce(v.stack_type, var.defaults.subnet_stack_type))
+      attached_projects    = coalesce(v.attached_projects, [])
     }
   ) }
   subnets = {
