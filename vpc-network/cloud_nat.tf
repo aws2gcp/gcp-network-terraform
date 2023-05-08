@@ -4,7 +4,7 @@ locals {
   cloud_nats_1 = { for k, v in var.cloud_nats : k => merge(v, {
     project_id             = coalesce(v.project_id, var.project_id)
     name                   = coalesce(v.name, k)
-    network_name = coalesce(var.network_name, "default")
+    network_name           = coalesce(var.network_name, "default")
     region                 = coalesce(v.region, var.region)
     router                 = coalesce(v.cloud_router_name, try(local.cloud_router_names[v.cloud_router], null), "unknown")
     num_static_ips         = coalesce(v.num_static_ips, 0)

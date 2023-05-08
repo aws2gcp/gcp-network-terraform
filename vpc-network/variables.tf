@@ -92,7 +92,7 @@ variable "cloud_routers" {
     project_id             = optional(string)
     name                   = optional(string)
     description            = optional(string)
-    region                 = string
+    region                 = optional(string)
     bgp_asn                = optional(number)
     bgp_keepalive_interval = optional(number)
     advertised_groups      = optional(list(string))
@@ -191,7 +191,7 @@ variable "vpc_access_connectors" {
   type = map(object({
     project_id         = optional(string)
     name               = optional(string)
-    region             = string
+    region             = optional(string)
     cidr_range         = optional(string)
     subnet_name        = optional(string)
     vpc_network_name   = optional(string)
