@@ -1,16 +1,16 @@
 locals {
-  # Make a list of all service project IDs
+  # Create list of all service project IDs being shared to
   service_project_ids = flatten([for k, v in local.subnets : v.attached_projects if length(v.attached_projects) > 0])
 }
 
-# Given project ID, get project information, namely the project number
+# Retrieve project information for all service projects, given project ID
 data "google_project" "service_projects" {
   for_each   = toset(local.service_project_ids)
   project_id = each.value
 }
 
 locals {
-  # Form Map of keyed by Project ID with list of compute service accounts
+  # Form Map of keyed by Project ID with list of relevant compute service accounts
   compute_sa_accounts = {
     for project in data.google_project.service_projects : project.project_id => [
       "serviceAccount:${project.number}-compute@developer.gserviceaccount.com",
@@ -20,22 +20,22 @@ locals {
   }
   # Create a list of objects for all subnets that are shared
   shared_subnets = flatten([
-    for k, v in local.subnets : [
-      for i, service_project_id in v.attached_projects : {
-        subnet_key         = k
-        subnet_project_id  = v.project_id
-        subnet_region      = v.region
-        subnet_id          = "projects/${v.project_id}/regions/${v.region}/subnetworks/${v.name}"
-        service_project_id = service_project_id
-        members            = lookup(local.compute_sa_accounts, service_project_id, [])
-      }
-    ] if length(v.attached_projects) > 0
+    for k, v in local.subnets : {
+      #for i, service_project_id in v.attached_projects : {
+      subnet_key        = k
+      subnet_project_id = v.project_id
+      subnet_region     = v.region
+      subnet_id         = "projects/${v.project_id}/regions/${v.region}/subnetworks/${v.name}"
+      members = flatten([
+        for i, service_project_id in v.attached_projects : lookup(local.compute_sa_accounts, service_project_id, [])
+      ])
+    } if length(v.attached_projects) > 0
   ])
 }
 
 # Give Compute Network User permissions on the subnet to project service accounts
 resource "google_compute_subnetwork_iam_binding" "compute" {
-  for_each   = { for i, v in local.shared_subnets : "${v.subnet_key}-${v.service_project_id}" => v }
+  for_each   = { for i, v in local.shared_subnets : "${v.subnet_key}" => v }
   project    = each.value.subnet_project_id
   region     = each.value.subnet_region
   subnetwork = each.value.subnet_id
