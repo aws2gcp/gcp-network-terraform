@@ -117,3 +117,11 @@ dns_zones = {
 dns_policies = {
 }
 ```
+
+#### Import examples
+
+Import existing DNS zone
+
+```
+terraform import 'google_dns_managed_zone.default[\"my-zone\"]' my-project/my-zone
+```

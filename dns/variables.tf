@@ -15,6 +15,7 @@ variable "dns_zones" {
     peer_project_id   = optional(string)
     peer_network_name = optional(string)
     logging           = optional(bool)
+    force_destroy     = optional(bool)
     target_name_servers = optional(list(object({
       ipv4_address    = optional(string)
       forwarding_path = optional(string)
