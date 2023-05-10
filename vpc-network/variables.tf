@@ -54,6 +54,7 @@ variable "subnets" {
     secondary_ranges = optional(map(object({
       range = string
     })))
+    enable = optional(bool)
   }))
   default = {}
 }
@@ -69,6 +70,7 @@ variable "routes" {
     instance_tags = optional(list(string))
     next_hop      = optional(string)
     next_hop_zone = optional(string)
+    enable        = optional(bool)
   }))
   default = {}
 }
@@ -83,6 +85,7 @@ variable "peerings" {
     export_custom_routes                = optional(bool)
     import_subnet_routes_with_public_ip = optional(bool)
     export_subnet_routes_with_public_ip = optional(bool)
+    enable                              = optional(bool)
   }))
   default = {}
 }
@@ -100,6 +103,7 @@ variable "cloud_routers" {
       range       = string
       description = optional(string)
     })))
+    enable = optional(bool)
   }))
   default = {}
 }
@@ -128,6 +132,7 @@ variable "cloud_nats" {
     tcp_time_wait_timeout        = optional(number)
     tcp_transitory_idle_timeout  = optional(number)
     icmp_idle_timeout            = optional(number)
+    enable                       = optional(bool)
   }))
   default = {}
 }
@@ -145,6 +150,7 @@ variable "firewall_rules" {
     target_tags      = optional(list(string))
     service_accounts = optional(list(string))
     action           = optional(bool)
+    enable           = optional(bool)
   }))
   default = {}
 }
@@ -155,15 +161,19 @@ variable "ip_ranges" {
     name        = optional(string)
     description = optional(string)
     ip_range    = string
+    enable      = optional(bool)
   }))
   default = {}
 }
 variable "service_connections" {
   description = "Private Service Connections"
   type = map(object({
-    name      = optional(string)
-    service   = optional(string)
-    ip_ranges = list(string)
+    name                 = optional(string)
+    service              = optional(string)
+    ip_ranges            = list(string)
+    import_custom_routes = optional(bool)
+    export_custom_routes = optional(bool)
+    enable               = optional(bool)
   }))
   default = {}
 }
@@ -172,6 +182,7 @@ variable "private_service_connections" {
   type = map(object({
     target     = string
     ip_address = optional(string)
+    enable     = optional(bool)
   }))
   default = {}
 }
@@ -183,6 +194,7 @@ variable "private_service_connects" {
     subnet_name   = optional(string)
     region        = optional(string)
     ip_address    = optional(string)
+    enable        = optional(bool)
   }))
   default = {}
 }
@@ -201,6 +213,7 @@ variable "vpc_access_connectors" {
     min_instances      = optional(number)
     max_instances      = optional(number)
     machine_type       = optional(string)
+    enable             = optional(bool)
   }))
   default = {}
 }

@@ -15,7 +15,7 @@ locals {
 
 # Serverless VPC Access Connectors
 resource "google_vpc_access_connector" "default" {
-  for_each      = local.vpc_access_connectors
+  for_each      = { for k, v in local.vpc_access_connectors : k => v if v.enable }
   project       = var.project_id
   name          = each.value.name
   network       = each.value.network

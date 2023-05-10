@@ -21,6 +21,7 @@ locals {
   # Create a list of objects for all subnets that are shared
   shared_subnets = flatten([
     for k, v in local.subnets : {
+      #for i, service_project_id in v.attached_projects : {
       subnet_key        = k
       subnet_project_id = v.project_id
       subnet_region     = v.region

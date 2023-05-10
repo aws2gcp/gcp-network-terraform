@@ -3,6 +3,7 @@ locals {
     {
       project_id           = coalesce(v.project_id, var.project_id)
       name                 = coalesce(v.name, k)
+      network_name         = google_compute_network.default.name
       purpose              = upper(coalesce(v.purpose, "PRIVATE"))
       region               = coalesce(v.region, var.region)
       private_access       = coalesce(v.private_access, var.defaults.subnet_private_access)
@@ -12,6 +13,8 @@ locals {
       flow_logs            = coalesce(v.flow_logs, var.defaults.subnet_flow_logs)
       stack_type           = upper(coalesce(v.stack_type, var.defaults.subnet_stack_type))
       attached_projects    = coalesce(v.attached_projects, [])
+      secondary_ranges     = [for k, v in coalesce(v.secondary_ranges, {}) : { name = k, range = v.range }]
+      enable               = coalesce(v.enable, true)
     }
   ) }
   subnets = {
@@ -23,9 +26,9 @@ locals {
 }
 
 resource "google_compute_subnetwork" "default" {
-  for_each                 = local.subnets
+  for_each                 = { for k, v in local.subnets : k => v if v.enable }
   project                  = var.project_id
-  network                  = google_compute_network.default.name
+  network                  = each.value.network_name
   name                     = each.value.name
   description              = each.value.description
   region                   = each.value.region
@@ -44,9 +47,9 @@ resource "google_compute_subnetwork" "default" {
     }
   }
   dynamic "secondary_ip_range" {
-    for_each = coalesce(each.value.secondary_ranges, {})
+    for_each = each.value.secondary_ranges
     content {
-      range_name    = secondary_ip_range.key
+      range_name    = secondary_ip_range.value.name
       ip_cidr_range = secondary_ip_range.value.range
     }
   }
