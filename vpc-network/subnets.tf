@@ -13,6 +13,7 @@ locals {
       flow_logs            = coalesce(v.flow_logs, var.defaults.subnet_flow_logs)
       stack_type           = upper(coalesce(v.stack_type, var.defaults.subnet_stack_type))
       attached_projects    = coalesce(v.attached_projects, [])
+      shared_accounts      = coalesce(v.shared_accounts, [])
       secondary_ranges     = [for k, v in coalesce(v.secondary_ranges, {}) : { name = k, range = v.range }]
       enable               = coalesce(v.enable, true)
     }

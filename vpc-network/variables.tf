@@ -51,6 +51,7 @@ variable "subnets" {
     log_aggregation_interval = optional(string)
     log_sampling_rate        = optional(number)
     attached_projects        = optional(list(string))
+    shared_accounts          = optional(list(string))
     secondary_ranges = optional(map(object({
       range = string
     })))

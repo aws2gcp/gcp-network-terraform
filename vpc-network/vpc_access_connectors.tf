@@ -9,6 +9,7 @@ locals {
       min_instances  = coalesce(v.min_instances, 2)
       max_instances  = coalesce(v.max_instances, 10)
       machine_type   = coalesce(v.machine_type, "e2-micro")
+      enable         = coalesce(v.enable, true)
     }
   ) }
 }
