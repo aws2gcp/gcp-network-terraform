@@ -16,6 +16,7 @@ variable "region" {
 variable "cloud_routers" {
   description = "Cloud Routers"
   type = map(object({
+    create                 = optional(bool)
     project_id             = optional(string)
     name                   = optional(string)
     description            = optional(string)
@@ -34,6 +35,7 @@ variable "cloud_routers" {
 variable "interconnects" {
   description = "Dedicated and Partner Interconnects"
   type = map(object({
+    create              = optional(bool)
     type                = string
     project_id          = optional(string)
     region              = optional(string)
@@ -49,7 +51,6 @@ variable "interconnects" {
     })))
     mtu            = optional(number)
     enable         = optional(bool)
-    enabled        = optional(bool)
     enable_bfd     = optional(bool)
     bfd_parameters = optional(list(number))
     circuits = list(object({
@@ -76,6 +77,7 @@ variable "interconnects" {
 variable "cloud_vpn_gateways" {
   description = "Map of GCP Cloud VPN Gateways"
   type = map(object({
+    create       = optional(bool)
     project_id   = optional(string)
     name         = optional(string)
     network_name = optional(string)
@@ -86,6 +88,7 @@ variable "cloud_vpn_gateways" {
 variable "peer_vpn_gateways" {
   description = "Map of Peer (External) VPN Gateways"
   type = map(object({
+    create       = optional(bool)
     project_id   = optional(string)
     name         = optional(string)
     description  = optional(string)
@@ -138,7 +141,7 @@ variable "vpns" {
         description = optional(string)
       })))
       enable_bfd = optional(bool)
-      enable     = optional(bool)
+      create     = optional(bool)
     }))
   }))
   default = {}

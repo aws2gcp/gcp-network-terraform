@@ -16,7 +16,7 @@ locals {
 
 # DNS Records
 resource "google_dns_record_set" "default" {
-  for_each     = { for dns_record in local.dns_records : "${dns_record.key}" => dns_record }
+  for_each     = { for v in local.dns_records : "${v.key}" => v }
   project      = each.value.project_id
   managed_zone = each.value.managed_zone
   name         = each.value.name

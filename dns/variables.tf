@@ -26,6 +26,7 @@ variable "dns_zones" {
       ttl     = optional(number)
       rrdatas = list(string)
     })))
+    create = optional(bool)
   }))
   default = {}
 }
@@ -42,6 +43,7 @@ variable "dns_policies" {
       forwarding_path = optional(string)
     })))
     networks = optional(list(string))
+    create   = optional(bool)
   }))
   default = {}
 }

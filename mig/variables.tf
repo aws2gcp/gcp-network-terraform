@@ -147,3 +147,7 @@ variable "update_replacement_method" {
   type    = string
   default = null
 }
+variable "create" {
+  type    = bool
+  default = true
+}

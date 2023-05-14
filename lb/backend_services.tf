@@ -2,6 +2,7 @@ locals {
   default_balancing_mode = local.type == "TCP" ? "CONNECTION" : "UTILIZATION"
   hc_prefix              = "projects/${var.project_id}/${local.is_regional ? "regions/${var.region}" : "global"}/healthChecks"
   backend_services = { for k, v in var.backends : k => {
+    create = coalesce(v.create, true)
     # Determine backend type by seeing if a key has been created for IG, SNEG, or INEG
     type            = try(local.backends[k].type, "unknown")
     name            = "${local.name_prefix}-${k}"
@@ -41,7 +42,7 @@ locals {
 
 # Global Backend Service
 resource "google_compute_backend_service" "default" {
-  for_each                        = local.is_global ? local.backend_services : {}
+  for_each                        = local.is_global ? { for k, v in local.backend_services : k => v if v.create } : {}
   project                         = var.project_id
   name                            = each.value.name
   description                     = each.value.description

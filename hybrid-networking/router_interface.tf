@@ -5,7 +5,7 @@ locals {
 
 # Cloud Router Interface
 resource "google_compute_router_interface" "default" {
-  for_each                = { for i, v in local.router_interfaces : "${v.key}" => v if v.enable == true }
+  for_each                = { for i, v in local.router_interfaces : "${v.key}" => v if v.create }
   project                 = each.value.project_id
   name                    = each.value.interface_name
   region                  = each.value.region

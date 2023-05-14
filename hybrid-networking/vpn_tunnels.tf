@@ -30,7 +30,7 @@ locals {
       bfd_min_transmit_interval       = 1000
       bfd_min_receive_interval        = 1000
       bfd_multiplier                  = v.bfd_multiplier
-      enable                          = coalesce(tunnel.enable, true)
+      create                          = coalesce(tunnel.create, true)
     }
   ]])
 }
@@ -63,7 +63,7 @@ locals {
   })]
 }
 resource "google_compute_vpn_tunnel" "default" {
-  for_each                        = { for i, v in local.vpn_tunnels : "${v.key}" => v if v.enable == true }
+  for_each                        = { for i, v in local.vpn_tunnels : "${v.key}" => v if v.create }
   project                         = each.value.project_id
   name                            = each.value.name
   description                     = each.value.description

@@ -40,7 +40,7 @@ locals {
       lookup(backend, "bucket_name", null) != null ? "bucket" : null,
       "unknown" # this should never happen
     )
-  } if backend.enable != false }
+  } if backend.create != false }
 }
 
 # Generate a random 8-character string for name_prefix, if required

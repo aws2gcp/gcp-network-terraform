@@ -1,5 +1,6 @@
 locals {
-  create_instance_template = var.instance_template_name == null ? true : false
+  create                   = coalesce(var.create, true)
+  create_instance_template = local.create && var.instance_template_name == null ? true : false
   network_project_id       = coalesce(var.network_project_id, var.project_id)
   subnet_id                = "projects/${local.network_project_id}/regions/${var.region}/subnetworks/${var.subnet_name}"
   os                       = coalesce(var.os, "debian-11")
@@ -120,7 +121,7 @@ resource "google_compute_region_instance_group_manager" "default" {
 
 resource "google_compute_region_autoscaler" "default" {
   provider = google
-  count    = local.autoscaling ? 1 : 0
+  count    = local.autoscaling && local.create ? 1 : 0
   name     = var.name_prefix
   project  = var.project_id
   region   = var.region

@@ -15,7 +15,7 @@ locals {
       attached_projects    = coalesce(v.attached_projects, [])
       shared_accounts      = coalesce(v.shared_accounts, [])
       secondary_ranges     = [for k, v in coalesce(v.secondary_ranges, {}) : { name = k, range = v.range }]
-      enable               = coalesce(v.enable, true)
+      create               = coalesce(v.create, true)
     }
   ) }
   subnets = {
@@ -27,7 +27,7 @@ locals {
 }
 
 resource "google_compute_subnetwork" "default" {
-  for_each                 = { for k, v in local.subnets : k => v if v.enable }
+  for_each                 = { for k, v in local.subnets : k => v if v.create }
   project                  = var.project_id
   network                  = each.value.network_name
   name                     = each.value.name

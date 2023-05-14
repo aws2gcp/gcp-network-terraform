@@ -8,13 +8,14 @@ locals {
       target_name_servers       = coalesce(v.target_name_servers, [])
       networks                  = coalesce(v.networks, [])
       logging                   = coalesce(v.logging, false)
+      create                    = coalesce(v.create, true)
     }
   ) }
 }
 
 # DNS Server Policies
 resource "google_dns_policy" "default" {
-  for_each                  = local.dns_policies
+  for_each                  = { for k, v in local.dns_policies : k => v if v.create }
   project                   = each.value.project_id
   name                      = each.value.name
   description               = each.value.description

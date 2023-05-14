@@ -240,7 +240,7 @@ variable "routing_rules" {
 variable "backends" {
   description = "Map of all backend services & buckets"
   type = map(object({
-    enable             = optional(bool, true)
+    create             = optional(bool)
     type               = optional(string) # We'll try and figure it out automatically
     description        = optional(string)
     region             = optional(string)

@@ -44,7 +44,7 @@ DNS Zones are defined as a map of objects in the `dns_zones` variable.  Attribut
 | Name    | Description                                        | Type           | Default |
 |---------|----------------------------------------------------|----------------|---------|
 | name    | Name of the DNS entry inside the zone (i.e. "www") | `string`       | n/a     |
-| type    | Type of record (i.e. A, CNAME, PTR, etc)           | `string`       | n/a     |
+| type    | Type of record (i.e. A, CNAME, PTR, etc)           | `string`       | A       |
 | ttl     | DNS Max TTL Value, in seconds                      | `number`       | 300     |
 | rrdatas | Data (values) for the record                       | `list(string)` | []      |
 

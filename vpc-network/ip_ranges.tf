@@ -10,13 +10,13 @@ locals {
       address_type  = "INTERNAL"
       purpose       = "VPC_PEERING"
       network_name  = google_compute_network.default.name
-      enable        = coalesce(v.enable, true)
+      create        = coalesce(v.enable, true)
     }
   }
 }
 
 resource "google_compute_global_address" "default" {
-  for_each      = { for k, v in local.ip_ranges : k => v if v.enable }
+  for_each      = { for k, v in local.ip_ranges : k => v if v.create }
   project       = var.project_id
   name          = each.value.name
   description   = each.value.description

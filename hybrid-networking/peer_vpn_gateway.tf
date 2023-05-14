@@ -1,5 +1,6 @@
 locals {
   peer_vpn_gateways = { for k, v in var.peer_vpn_gateways : k => {
+    create       = coalesce(v.create, true)
     project_id   = coalesce(v.project_id, var.project_id)
     name         = coalesce(v.name, k)
     description  = v.description
@@ -15,7 +16,7 @@ locals {
 
 # Peer (External) VPN Gateway
 resource "google_compute_external_vpn_gateway" "default" {
-  for_each        = local.peer_vpn_gateways
+  for_each        = { for k, v in local.peer_vpn_gateways : k => v if v.create }
   project         = each.value.project_id
   name            = each.value.name
   description     = each.value.description

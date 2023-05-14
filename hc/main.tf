@@ -1,5 +1,5 @@
 locals {
-  create_hc       = local.is_global || local.is_regional || local.is_legacy
+  create          = coalesce(var.create, true)
   name            = local.use_random_name ? lower("${one(random_string.name_prefix).result}-${local.protocol}-${var.port}") : lower(var.name)
   use_random_name = var.name == null ? true : false
   description     = var.description
@@ -28,7 +28,7 @@ resource "random_string" "name_prefix" {
 
 # Global Health Checks
 resource "google_compute_health_check" "default" {
-  count       = local.is_global && !local.is_legacy ? 1 : 0
+  count       = local.create && local.is_global && !local.is_legacy ? 1 : 0
   name        = local.name
   description = local.description
   dynamic "tcp_health_check" {
@@ -77,7 +77,7 @@ resource "google_compute_health_check" "default" {
 
 # Regional Health Checks
 resource "google_compute_region_health_check" "default" {
-  count       = local.create_hc && local.is_regional && !local.is_legacy ? 1 : 0
+  count       = local.create && local.is_regional && !local.is_legacy ? 1 : 0
   name        = local.name
   description = local.description
   region      = var.region
@@ -126,7 +126,7 @@ resource "google_compute_region_health_check" "default" {
 
 # Legacy HTTP Health Check
 resource "google_compute_http_health_check" "default" {
-  count              = local.create_hc && local.is_legacy && local.is_http ? 1 : 0
+  count              = local.create && local.is_legacy && local.is_http ? 1 : 0
   name               = local.name
   description        = local.description
   port               = var.port
@@ -137,7 +137,7 @@ resource "google_compute_http_health_check" "default" {
 
 # Legacy HTTPS Health Check
 resource "google_compute_https_health_check" "default" {
-  count              = local.create_hc && local.is_legacy && local.is_https ? 1 : 0
+  count              = local.create && local.is_legacy && local.is_https ? 1 : 0
   name               = local.name
   description        = local.description
   port               = var.port

@@ -12,6 +12,7 @@ locals {
       visibility          = lower(coalesce(v.visibility, "public"))
       records             = coalesce(v.records, [])
       force_destroy       = coalesce(v.force_destroy, false)
+      create              = coalesce(v.create, true)
     }
   ) }
   dns_zones_1 = { for k, v in local.dns_zones_0 : k => merge(v,
@@ -22,7 +23,7 @@ locals {
   dns_zones = { for k, v in local.dns_zones_1 : k => merge(v,
     {
       is_private = v.visibility == "private" ? true : false
-      is_public = v.visibility == "public" ? true : false
+      is_public  = v.visibility == "public" ? true : false
     }
   ) }
   url_prefix = "https://www.googleapis.com/compute/v1/projects"
@@ -30,7 +31,7 @@ locals {
 
 # DNS Zones
 resource "google_dns_managed_zone" "default" {
-  for_each      = local.dns_zones
+  for_each      = { for k, v in local.dns_zones : k => v if v.create }
   project       = each.value.project_id
   name          = each.value.name
   description   = each.value.description

@@ -1,5 +1,6 @@
 locals {
   cloud_routers = { for k, v in var.cloud_routers : k => {
+    create                 = coalesce(v.create, true)
     project_id             = coalesce(v.project_id, var.project_id)
     name                   = coalesce(v.name, k)
     description            = coalesce(v.description, "Managed by Terraform")
@@ -15,7 +16,7 @@ locals {
 
 # Cloud Routers
 resource "google_compute_router" "default" {
-  for_each    = local.cloud_routers
+  for_each    = { for k, v in local.cloud_routers : k => v if v.create }
   project     = each.value.project_id
   name        = each.value.name
   description = each.value.description

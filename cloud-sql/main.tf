@@ -11,6 +11,7 @@ locals {
       network_link        = try(coalesce(v.private_network_id, var.private_network_id), null)
       network_name        = coalesce(v.private_network_name, var.private_network_name, "default")
       deletion_protection = coalesce(v.deletion_projection, var.deletion_projection, true)
+      create              = coalesce(v.create, true)
     }
   }
   default_versions = {

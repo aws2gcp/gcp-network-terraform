@@ -51,6 +51,7 @@ variable "sql_instances" {
     private_network_id   = optional(string)
     private_network_name = optional(string)
     deletion_projection  = optional(bool)
+    create               = optional(bool)
   }))
   default = {
     sql-instance = {
@@ -64,6 +65,7 @@ variable "sql_instances" {
       private_network_id   = null
       private_network_name = null
       deletion_projection  = null
+      create               = null
     }
   }
 }

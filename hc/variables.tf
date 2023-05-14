@@ -89,3 +89,7 @@ variable "proxy_header" {
   type    = string
   default = null
 }
+variable "create" {
+  type    = bool
+  default = true
+}
