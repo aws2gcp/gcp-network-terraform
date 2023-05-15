@@ -1,4 +1,5 @@
 locals {
+  create                  = coalesce(var.create, true)
   install_type            = coalesce(var.install_type, "Cluster")
   is_cluster              = local.install_type == "Cluster" ? true : false
   is_mig                  = local.install_type == "AutoScale" ? true : false
@@ -125,7 +126,7 @@ locals {
 
 # Create Compute Engine Instances
 resource "google_compute_instance" "default" {
-  count                     = length(local.instances)
+  count                     = local.create ? length(local.instances) : 0
   project                   = var.project_id
   name                      = local.instances[count.index].name
   description               = local.description

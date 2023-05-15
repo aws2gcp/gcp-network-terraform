@@ -12,15 +12,18 @@ variable "network_name" {
 }
 variable "instances" {
   type = map(object({
+    create                 = optional(bool)
     project_id             = optional(string)
     name                   = optional(string)
     description            = optional(string)
     region                 = optional(string)
+    zone                   = optional(string)
     num_instances          = optional(string)
     subnet_name            = optional(string)
     machine_type           = optional(string)
     boot_disk_type         = optional(string)
     boot_disk_size         = optional(number)
+    labels                 = optional(map(string))
     image                  = optional(string)
     os                     = optional(string)
     os_project             = optional(string)
@@ -36,6 +39,10 @@ variable "instances" {
     create_instance_groups = optional(bool)
     public_zone            = optional(string)
     private_zone           = optional(string)
+    roles = optional(list(object({
+      role    = string
+      members = optional(list(string))
+    })))
   }))
   default = {}
 }

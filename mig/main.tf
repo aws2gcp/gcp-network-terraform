@@ -25,7 +25,7 @@ resource "google_compute_instance_template" "default" {
   name_prefix             = var.name_prefix
   description             = var.description
   machine_type            = var.machine_type
-  labels                  = var.labels
+  labels                  = { for k, v in var.labels : k => lower(replace(v, " ", "_")) }
   tags                    = var.network_tags
   metadata_startup_script = var.startup_script
   can_ip_forward          = var.enable_ip_forwarding

@@ -10,14 +10,12 @@ output "admin_password" { value = local.admin_password }
 output "admin_shell" { value = local.admin_shell }
 output "image" { value = local.image }
 output "instances" {
-  value = { for k, v in local.instances : k =>
-    {
-      name             = google_compute_instance.default[k].name
-      zone             = google_compute_instance.default[k].zone
-      mgmt_ip          = local.is_gateway ? google_compute_instance.default[k].network_interface.1.network_ip : google_compute_instance.default[k].network_interface.0.network_ip
-      nic0_external_ip = local.create_nic0_external_ips && !local.is_cluster ? google_compute_instance.default[k].network_interface.0.access_config.0.nat_ip : null
-      nic1_external_ip = local.create_nic1_external_ips ? google_compute_instance.default[k].network_interface.1.access_config.0.nat_ip : null
-    }
-  }
+  value = { for k, v in local.instances : k => {
+    name             = google_compute_instance.default[k].name
+    zone             = google_compute_instance.default[k].zone
+    mgmt_ip          = local.is_gateway ? google_compute_instance.default[k].network_interface.1.network_ip : google_compute_instance.default[k].network_interface.0.network_ip
+    nic0_external_ip = local.create_nic0_external_ips && !local.is_cluster ? google_compute_instance.default[k].network_interface.0.access_config.0.nat_ip : null
+    nic1_external_ip = local.create_nic1_external_ips ? google_compute_instance.default[k].network_interface.1.access_config.0.nat_ip : null
+  } if var.create }
 }
 output "instance_group_ids" { value = google_compute_instance_group.default[*].id }

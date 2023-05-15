@@ -200,4 +200,7 @@ variable "internal_routes" {
   type    = list(string)
   default = []
 }
-
+variable "create" {
+  type    = bool
+  default = true
+}
