@@ -25,7 +25,7 @@ locals {
 
 # Instance Template
 resource "google_compute_instance_template" "default" {
-  count                   = local.create_instance_template ? 1 : 0
+  count                   = local.create && local.create_instance_template ? 1 : 0
   project                 = var.project_id
   name_prefix             = var.name_prefix
   description             = var.description
@@ -84,6 +84,7 @@ locals {
 
 # Managed Instance Group
 resource "google_compute_region_instance_group_manager" "default" {
+  count                     = local.create ? 1 : 0
   base_instance_name        = coalesce(var.base_instance_name, var.name_prefix)
   project                   = var.project_id
   name                      = "${var.name_prefix}-${var.region}"
@@ -127,7 +128,7 @@ resource "google_compute_region_autoscaler" "default" {
   name     = var.name_prefix
   project  = var.project_id
   region   = var.region
-  target   = google_compute_region_instance_group_manager.default.self_link
+  target   = local.create ? one(google_compute_region_instance_group_manager.default).self_link : null
   autoscaling_policy {
     max_replicas    = coalesce(var.max_replicas, 10)
     min_replicas    = coalesce(var.min_replicas, 1)
