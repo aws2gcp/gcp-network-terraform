@@ -1,6 +1,7 @@
 locals {
   ip_ranges = { for k, v in var.ip_ranges : k =>
     {
+      create        = coalesce(v.create, true)
       project_id    = coalesce(v.project_id, var.project_id)
       name          = coalesce(v.name, k)
       description   = v.description
@@ -10,7 +11,6 @@ locals {
       address_type  = "INTERNAL"
       purpose       = "VPC_PEERING"
       network_name  = google_compute_network.default.name
-      create        = coalesce(v.enable, true)
     }
   }
 }
