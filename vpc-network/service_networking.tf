@@ -16,6 +16,7 @@ resource "google_service_networking_connection" "default" {
   reserved_peering_ranges = each.value.ip_ranges
   service                 = each.value.service
   network                 = each.value.network_id
+  depends_on              = [google_compute_global_address.default]
 }
 
 # Separate Step to handle route import/export on peering connections
