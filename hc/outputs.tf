@@ -1,5 +1,5 @@
 output "id" {
-  value = local.create_hc ? one(concat(
+  value = local.create ? one(concat(
     google_compute_health_check.default.*.id,
     google_compute_region_health_check.default.*.id,
     google_compute_http_health_check.default.*.id,
@@ -7,7 +7,7 @@ output "id" {
   )) : null
 }
 output "name" {
-  value = local.create_hc ? one(concat(
+  value = local.create ? one(concat(
     google_compute_health_check.default.*.name,
     google_compute_region_health_check.default.*.name,
     google_compute_http_health_check.default.*.name,
@@ -15,7 +15,7 @@ output "name" {
   )) : null
 }
 output "self_link" {
-  value = local.create_hc ? one(concat(
+  value = local.create ? one(concat(
     google_compute_health_check.default.*.self_link,
     google_compute_region_health_check.default.*.self_link,
     google_compute_http_health_check.default.*.self_link,
@@ -23,7 +23,7 @@ output "self_link" {
   )) : null
 }
 output "type" {
-  value = local.create_hc ? one(concat(
+  value = local.create ? one(concat(
     google_compute_health_check.default.*.type,
     google_compute_region_health_check.default.*.type,
   )) : null
