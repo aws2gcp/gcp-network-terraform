@@ -102,6 +102,7 @@ variable "cloud_routers" {
     bgp_keepalive_interval = optional(number)
     advertised_groups      = optional(list(string))
     advertised_ip_ranges = optional(list(object({
+      create      = optional(bool)
       range       = string
       description = optional(string)
     })))
