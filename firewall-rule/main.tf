@@ -1,4 +1,5 @@
 locals {
+  create         = coalesce(var.create, true)
   gen_short_name = var.name == null && var.short_name == null ? true : false
   short_name     = coalesce(var.short_name, local.gen_short_name ? one(random_string.short_name).result : "rule")
   rule_name      = lower(coalesce(var.name, "${local.name_prefix}-${local.short_name}"))
@@ -44,7 +45,7 @@ locals {
 }
 
 resource "random_string" "short_name" {
-  count   = local.gen_short_name ? 1 : 0
+  count   = local.create && local.gen_short_name ? 1 : 0
   length  = 5
   special = false
   upper   = false
@@ -56,6 +57,7 @@ data "google_netblock_ip_ranges" "default" {
 }
 
 resource "google_compute_firewall" "default" {
+  count                   = local.create ? 1 : 0
   project                 = var.project_id
   name                    = local.rule_name
   description             = var.description
