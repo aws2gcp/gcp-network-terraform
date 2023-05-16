@@ -16,7 +16,6 @@ locals {
       attached_projects    = coalesce(v.attached_projects, [])
       shared_accounts      = coalesce(v.shared_accounts, [])
       secondary_ranges     = [for k, v in coalesce(v.secondary_ranges, {}) : { name = k, range = v.range }]
-      create               = coalesce(v.create, true)
     }
   ) }
   subnets = {
