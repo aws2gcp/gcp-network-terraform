@@ -31,6 +31,10 @@ variable "subnet_name" {
 variable "region" {
   type = string
 }
+variable "zones" {
+  type    = list(string)
+  default = null
+}
 variable "target_size" {
   type    = number
   default = null
@@ -145,6 +149,10 @@ variable "update_most_disruptive_action" {
 }
 variable "update_replacement_method" {
   type    = string
+  default = null
+}
+variable "metadata" {
+  type    = map(string)
   default = null
 }
 variable "create" {

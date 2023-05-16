@@ -16,6 +16,11 @@ locals {
     lookup(local.os_projects, split("-", var.image)[0], null),
     "debian-cloud" # default to debian
   )
+  default_metadata = {
+    enable-osconfig         = "true"
+    enable-guest-attributes = "true"
+  }
+  metadata = merge(local.default_metadata, var.metadata, var.ssh_key != null ? { instanceSSHKey = var.ssh_key } : {})
 }
 
 # Instance Template
@@ -27,6 +32,7 @@ resource "google_compute_instance_template" "default" {
   machine_type            = var.machine_type
   labels                  = { for k, v in var.labels : k => lower(replace(v, " ", "_")) }
   tags                    = var.network_tags
+  metadata                = local.metadata
   metadata_startup_script = var.startup_script
   can_ip_forward          = var.enable_ip_forwarding
   disk {
@@ -48,10 +54,6 @@ resource "google_compute_instance_template" "default" {
   }
   shielded_instance_config {
     enable_secure_boot = true
-  }
-  metadata = {
-    enable-osconfig         = "true"
-    enable-guest-attributes = "true"
   }
 }
 
@@ -77,7 +79,7 @@ locals {
   hc_prefix       = "projects/${var.project_id}/${var.region != null ? "regions/${var.region}" : "global"}"
   healthcheck_ids = coalesce(var.healthcheck_ids, [try("${local.hc_prefix}/healthChecks/${var.healthcheck_name}", null)])
   autoscaling     = coalesce(var.min_replicas, 0) > 0 || coalesce(var.max_replicas, 0) > 0 ? true : false
-  zones           = coalesce(data.google_compute_zones.available.names, local.default_zones)
+  zones           = coalesce(var.zones, data.google_compute_zones.available.names, local.default_zones)
 }
 
 # Managed Instance Group
