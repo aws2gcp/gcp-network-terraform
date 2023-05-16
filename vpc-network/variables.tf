@@ -38,6 +38,7 @@ variable "service_project_ids" {
 variable "subnets" {
   description = "Subnets in this VPC Network"
   type = map(object({
+    create                   = optional(bool)
     project_id               = optional(string)
     name                     = optional(string)
     description              = optional(string)

@@ -26,6 +26,7 @@ locals {
       os           = v.os
       machine_type = v.machine_type
     })
+    metadata = merge(v.metadata, v.ssh_key != null ? { instanceSSHKey = v.ssh_key } : {})
   }) }
 }
 resource "google_compute_instance" "default" {
@@ -55,9 +56,7 @@ resource "google_compute_instance" "default" {
   labels                  = { for k, v in each.value.labels : k => lower(replace(v, " ", "_")) }
   tags                    = each.value.network_tags
   metadata_startup_script = each.value.startup_script
-  metadata = each.value.ssh_key != null ? {
-    instanceSSHKey = each.value.ssh_key
-  } : null
+  metadata                = each.value.metadata
   service_account {
     email  = each.value.service_account_email
     scopes = each.value.service_account_scopes
@@ -72,7 +71,7 @@ locals {
         project_id    = v.project_id
         instance_name = v.name
         zone          = v.zone
-        role          = startswith(role.role, "roles/") ? role.role : "roles/${role.role}"
+        role          = role.role
         member        = member
         key           = "${v.project_id}-${v.zone}-${v.name}-${i}-${member}"
       }
@@ -85,4 +84,5 @@ resource "google_compute_instance_iam_member" "default" {
   zone          = each.value.zone
   role          = each.value.role
   member        = each.value.member
+  depends_on    = [google_compute_instance.default]
 }

@@ -1,6 +1,7 @@
 locals {
-  subnets_1 = { for k, v in var.subnets : k => merge(v,
+  subnets_0 = { for k, v in var.subnets : k => merge(v,
     {
+      create               = coalesce(v.create, true)
       project_id           = coalesce(v.project_id, var.project_id)
       name                 = coalesce(v.name, k)
       network_name         = google_compute_network.default.name
@@ -19,7 +20,7 @@ locals {
     }
   ) }
   subnets = {
-    for k, v in local.subnets_1 : k => merge(v, {
+    for k, v in local.subnets_0 : k => merge(v, {
       is_private    = v.purpose == "PRIVATE" ? true : false
       is_proxy_only = contains(["INTERNAL_HTTPS_LOAD_BALANCER", "REGIONAL_MANAGED_PROXY"], v.purpose) ? true : false
     })
