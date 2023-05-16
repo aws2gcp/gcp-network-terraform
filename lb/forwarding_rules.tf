@@ -19,7 +19,7 @@ locals {
 
 # Global Forwarding rule for TCP or SSL Proxy
 resource "google_compute_global_forwarding_rule" "default" {
-  for_each              = local.is_global && !local.is_http ? local.global_fwd_rules : {}
+  for_each              = local.create && local.is_global && !local.is_http ? local.global_fwd_rules : {}
   project               = var.project_id
   name                  = "${local.name_prefix}-${each.value.ip_version}-${each.value.port}"
   port_range            = each.value.port
@@ -32,7 +32,7 @@ resource "google_compute_global_forwarding_rule" "default" {
 
 # Global Forwarding rule for HTTP
 resource "google_compute_global_forwarding_rule" "http" {
-  for_each              = local.is_global && local.is_http && local.enable_http ? local.global_fwd_rules : {}
+  for_each              = local.create && local.is_global && local.is_http && local.enable_http ? local.global_fwd_rules : {}
   project               = var.project_id
   name                  = "${local.name_prefix}-${each.value.ip_version}-http"
   port_range            = var.http_port
@@ -44,7 +44,7 @@ resource "google_compute_global_forwarding_rule" "http" {
 
 # Global Forwarding Rule for HTTPS
 resource "google_compute_global_forwarding_rule" "https" {
-  for_each              = local.is_global && local.is_http && local.enable_http ? local.global_fwd_rules : {}
+  for_each              = local.create && local.is_global && local.is_http && local.enable_http ? local.global_fwd_rules : {}
   project               = var.project_id
   name                  = "${local.name_prefix}-${each.value.ip_version}-https"
   port_range            = var.https_port
@@ -57,7 +57,7 @@ resource "google_compute_global_forwarding_rule" "https" {
 
 # Regional Forwarding rule for Network or Internal TCP/UDP LB
 resource "google_compute_forwarding_rule" "default" {
-  count                  = local.is_regional && !local.is_http ? 1 : 0
+  count                  = local.create && local.is_regional && !local.is_http ? 1 : 0
   project                = var.project_id
   name                   = coalesce(var.forwarding_rule_name, "${local.name_prefix}-lb")
   port_range             = var.port_range
@@ -78,7 +78,7 @@ resource "google_compute_forwarding_rule" "default" {
 
 # Regional Forwarding rule for HTTP
 resource "google_compute_forwarding_rule" "http" {
-  count                  = local.is_regional && local.is_http && local.enable_http ? 1 : 0
+  count                  = local.create && local.is_regional && local.is_http && local.enable_http ? 1 : 0
   project                = var.project_id
   name                   = "${local.name_prefix}-http"
   port_range             = var.http_port
@@ -97,7 +97,7 @@ resource "google_compute_forwarding_rule" "http" {
 
 # Regional Forwarding Rule for HTTPS
 resource "google_compute_forwarding_rule" "https" {
-  count                  = local.is_regional && local.is_http && local.enable_https ? 1 : 0
+  count                  = local.create && local.is_regional && local.is_http && local.enable_https ? 1 : 0
   project                = var.project_id
   name                   = "${local.name_prefix}-https"
   port_range             = var.https_port
@@ -132,7 +132,7 @@ locals {
 
 # Private Service Connect Publishing
 resource "google_compute_service_attachment" "default" {
-  count                 = local.psc != null ? 1 : 0
+  count                 = local.create && local.psc != null ? 1 : 0
   project               = var.project_id
   name                  = local.psc.service_name
   region                = local.region

@@ -1,4 +1,5 @@
 locals {
+  create                 = coalesce(var.create, true)
   name_prefix            = var.name_prefix != null ? var.name_prefix : random_string.name_prefix[0].result
   is_global              = var.region == null ? true : false
   is_regional            = local.is_global ? false : true

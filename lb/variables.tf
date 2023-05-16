@@ -206,7 +206,10 @@ variable "cdn_cache_mode" {
   default     = null
 }
 // End Backend Settings
-
+variable "create" {
+  type    = bool
+  default = true
+}
 variable "psc" {
   description = "Parameters to publish Internal forwarding rule using PSC"
   type = object({
