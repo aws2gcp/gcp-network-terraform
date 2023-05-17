@@ -5,7 +5,7 @@ locals {
     name                   = coalesce(v.name, k)
     description            = coalesce(v.description, "Managed by Terraform")
     region                 = coalesce(v.region, var.region)
-    network_name           = coalesce(v.network_name, var.network_name, "default")
+    network_name           = coalesce(var.network_name, "default")
     bgp_asn                = coalesce(v.bgp_asn, 64512)
     bgp_keepalive_interval = coalesce(v.bgp_keepalive_interval, 20)
     advertise_mode         = length(coalesce(v.advertised_ip_ranges, [])) > 0 ? "CUSTOM" : "DEFAULT"
