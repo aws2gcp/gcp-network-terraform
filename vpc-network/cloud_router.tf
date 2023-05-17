@@ -1,5 +1,5 @@
 
-# Call Hybrid Networking module, passing the cloud_routers variable
+/* Call Hybrid Networking module, passing the cloud_routers variable
 module "cloud_routers" {
   source        = "../hybrid-networking/"
   project_id    = var.project_id
@@ -8,3 +8,4 @@ module "cloud_routers" {
   cloud_routers = var.cloud_routers
   depends_on    = [google_compute_network.default]
 }
+*/
