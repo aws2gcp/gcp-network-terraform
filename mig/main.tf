@@ -72,7 +72,7 @@ locals {
   ] : []
 }
 resource "google_project_iam_member" "default" {
-  for_each = { for i, v in local.ops_agent_iam_members : i => v if var.service_account_mail != null }
+  for_each = { for i, v in local.ops_agent_iam_members : i => v if var.service_account_email != null }
   project  = var.project_id
   member   = each.value.member
   role     = each.value.role
