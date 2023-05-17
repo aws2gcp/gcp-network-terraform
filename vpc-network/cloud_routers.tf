@@ -35,4 +35,5 @@ resource "google_compute_router" "default" {
       }
     }
   }
+  depends_on = [google_compute_network.default]
 }
