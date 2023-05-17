@@ -13,7 +13,7 @@ locals {
   os_project = coalesce(
     var.os_project,
     lookup(local.os_projects, split("-", local.os)[0], null),
-    lookup(local.os_projects, split("-", var.image)[0], null),
+    var.image != null ? lookup(local.os_projects, split("-", var.image)[0], null) : null,
     "debian-cloud" # default to debian
   )
   default_metadata = {
@@ -60,12 +60,16 @@ resource "google_compute_instance_template" "default" {
 # Add required IAM permissions for Ops Agents
 locals {
   ops_agent_roles = ["logging.logWriter", "monitoring.metricWriter"]
+  ops_agent_iam_members = { for i, v in local.ops_agent_roles : i => {
+    member = "serviceAccount:${var.service_account_email}"
+    role   = "roles/${v}"
+  } if var.service_account_email != null }
 }
 resource "google_project_iam_member" "default" {
-  for_each = var.service_account_email != null ? { for i, v in local.ops_agent_roles : i => v } : {}
+  for_each = local.ops_agent_iam_members
   project  = var.project_id
-  member   = "serviceAccount:${var.service_account_email}"
-  role     = "roles/${each.value}"
+  member   = each.value.member
+  role     = each.value.role
 }
 
 # Get list of available zones for this region
