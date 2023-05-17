@@ -58,24 +58,17 @@ resource "google_compute_instance_template" "default" {
 }
 
 # Add required IAM permissions for Ops Agents
-locals {
-  ops_agent_roles = ["logging.logWriter", "monitoring.metricWriter"]
-  ops_agent_iam_members = var.service_account_email != null ? [
-    {
-      member = "serviceAccount:${var.service_account_email}"
-      role   = "roles/logging.logWriter"
-    },
-    {
-      member = "serviceAccount:${var.service_account_email}"
-      role   = "roles/monitoring.metricWriter"
-    }
-  ] : []
+resource "google_project_iam_member" "log_writer" {
+  count   = var.service_account_email != null ? 1 : 0
+  project = var.project_id
+  member  = "serviceAccount:${var.service_account_email}"
+  role    = "roles/monitoring.logWriter"
 }
-resource "google_project_iam_member" "default" {
-  for_each = { for i, v in local.ops_agent_iam_members : i => v if var.service_account_email != null }
-  project  = var.project_id
-  member   = each.value.member
-  role     = each.value.role
+resource "google_project_iam_member" "metric_writer" {
+  count   = var.service_account_email != null ? 1 : 0
+  project = var.project_id
+  member  = "serviceAccount:${var.service_account_email}"
+  role    = "roles/monitoring.metricWriter"
 }
 
 # Get list of available zones for this region
