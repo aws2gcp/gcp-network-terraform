@@ -57,7 +57,7 @@ resource "google_compute_instance_template" "default" {
   }
 }
 
-# Add required IAM permissions for Ops Agents
+/* Add required IAM permissions for Ops Agents
 resource "google_project_iam_member" "log_writer" {
   count   = var.service_account_email != null ? 1 : 0
   project = var.project_id
@@ -69,7 +69,7 @@ resource "google_project_iam_member" "metric_writer" {
   project = var.project_id
   member  = "serviceAccount:${var.service_account_email}"
   role    = "roles/monitoring.metricWriter"
-}
+} */
 
 # Get list of available zones for this region
 data "google_compute_zones" "available" {
