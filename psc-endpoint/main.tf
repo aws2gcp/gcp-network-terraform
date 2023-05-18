@@ -1,5 +1,5 @@
 locals {
-  active             = coalesce(var.active, true)
+  create             = coalesce(var.create, true)
   name               = coalesce(var.name, "psc-endpoint-${local.region}-${local.target_name}")
   description        = coalesce(var.description, "PSC to ${local.target_id}")
   network_project_id = coalesce(var.network_project_id, var.project_id)
@@ -31,7 +31,7 @@ resource "google_compute_address" "default" {
 
 # Create Forwarding Rule for the network using generated IP address
 resource "google_compute_forwarding_rule" "default" {
-  count                 = local.active ? 1 : 0
+  count                 = local.create ? 1 : 0
   name                  = local.name
   network               = local.network_link
   region                = local.region
@@ -40,6 +40,6 @@ resource "google_compute_forwarding_rule" "default" {
   subnetwork            = null
   load_balancing_scheme = ""
   all_ports             = false
-  allow_global_access   = false
+  allow_global_access   = var.global_access
   project               = var.project_id
 }
