@@ -8,10 +8,10 @@ variable "network_project_id" {
   type        = string
   default     = null
 }
-variable "active" {
+variable "create" {
   description = "Whether or not to build forwarding rule"
   type        = bool
-  default     = null
+  default     = true
 }
 variable "region" {
   description = "GCP region name for the IP address and forwarding rule"
