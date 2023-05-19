@@ -71,3 +71,8 @@ variable "target_name" {
   type        = string
   default     = null
 }
+variable "global_access" {
+  description = "Allow access to forwarding rule from all regions"
+  type        = bool
+  default     = null
+}
