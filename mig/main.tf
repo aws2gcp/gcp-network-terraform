@@ -21,6 +21,7 @@ locals {
     enable-guest-attributes = "true"
   }
   metadata = merge(local.default_metadata, var.metadata, var.ssh_key != null ? { instanceSSHKey = var.ssh_key } : {})
+  labels = coalesce(var.labels, {})
 }
 
 # Instance Template
@@ -30,7 +31,7 @@ resource "google_compute_instance_template" "default" {
   name_prefix             = var.name_prefix
   description             = var.description
   machine_type            = var.machine_type
-  labels                  = { for k, v in var.labels : k => lower(replace(v, " ", "_")) }
+  labels                  = { for k, v in local.labels : k => lower(replace(v, " ", "_")) }
   tags                    = var.network_tags
   metadata                = local.metadata
   metadata_startup_script = var.startup_script
