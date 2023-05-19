@@ -19,7 +19,7 @@
 
 | Name                 | Description                                               | Type     | Default   |
 |----------------------|-----------------------------------------------------------|----------|-----------|
-| active               | Whether or not to create forwarding rule                  | `bool`   | true      |
+| create               | Whether or not to create forwarding rule                  | `bool`   | true      |
 | region               | Name of the network this set of firewall rules applies to | `string` | n/a       |
 | subnet\_name         | Name of the subnet to create the IP address on            | `string` | "default" |
 | subnet\_id           | ID of the subnet to create the IP address on              | `string` | n/a       |
