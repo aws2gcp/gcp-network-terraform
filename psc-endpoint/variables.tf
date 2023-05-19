@@ -1,7 +1,6 @@
 variable "project_id" {
   description = "GCP Project ID to create resources in"
   type        = string
-  default     = null
 }
 variable "network_project_id" {
   description = "If using Shared VPC, the GCP Project ID for the host network"
