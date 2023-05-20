@@ -1,18 +1,16 @@
 locals {
-  ip_ranges = { for k, v in var.ip_ranges : k =>
-    {
-      create        = coalesce(v.create, true)
-      project_id    = coalesce(v.project_id, var.project_id)
-      name          = coalesce(v.name, k)
-      description   = v.description
-      ip_version    = null
-      address       = element(split("/", v.ip_range), 0)
-      prefix_length = element(split("/", v.ip_range), 1)
-      address_type  = "INTERNAL"
-      purpose       = "VPC_PEERING"
-      network_name  = google_compute_network.default.name
-    }
-  }
+  ip_ranges = { for k, v in var.ip_ranges : k => {
+    create        = coalesce(v.create, true)
+    project_id    = coalesce(v.project_id, var.project_id)
+    name          = coalesce(v.name, k)
+    description   = v.description
+    ip_version    = null
+    address       = element(split("/", v.ip_range), 0)
+    prefix_length = element(split("/", v.ip_range), 1)
+    address_type  = "INTERNAL"
+    purpose       = "VPC_PEERING"
+    network_name  = google_compute_network.default.name
+  } if coalesce(v.create, true) }
 }
 
 resource "google_compute_global_address" "default" {
