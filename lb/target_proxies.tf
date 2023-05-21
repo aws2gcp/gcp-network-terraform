@@ -5,7 +5,7 @@ locals {
 
 # Global TCP Proxy
 resource "google_compute_target_tcp_proxy" "default" {
-  count           = local.is_global && !local.is_http ? 1 : 0
+  count           = local.create && local.is_global && !local.is_http ? 1 : 0
   project         = var.project_id
   name            = "${local.name_prefix}-${lower(local.type)}"
   backend_service = try(lookup(local.backend_ids, var.default_backend, null), null)
@@ -22,7 +22,7 @@ resource "google_compute_region_target_tcp_proxy" "default" {
 
 # Global HTTP Target Proxy
 resource "google_compute_target_http_proxy" "default" {
-  count   = local.is_global && local.is_http && local.enable_http ? 1 : 0
+  count   = local.create && local.is_global && local.is_http && local.enable_http ? 1 : 0
   project = var.project_id
   name    = "${local.name_prefix}-http"
   url_map = one(google_compute_url_map.http).id
@@ -30,7 +30,7 @@ resource "google_compute_target_http_proxy" "default" {
 
 # Regional HTTP Target Proxy
 resource "google_compute_region_target_http_proxy" "default" {
-  count   = local.is_regional && local.is_http && local.enable_http ? 1 : 0
+  count   = local.create && local.is_regional && local.is_http && local.enable_http ? 1 : 0
   project = var.project_id
   name    = "${local.name_prefix}-http"
   url_map = one(google_compute_region_url_map.http).id
@@ -39,7 +39,7 @@ resource "google_compute_region_target_http_proxy" "default" {
 
 # Global HTTPS Target Proxy
 resource "google_compute_target_https_proxy" "default" {
-  count   = local.is_global && local.is_http && local.enable_https ? 1 : 0
+  count   = local.create && local.is_global && local.is_http && local.enable_https ? 1 : 0
   project = var.project_id
   name    = "${local.name_prefix}-https"
   url_map = one(google_compute_url_map.https).id
@@ -54,7 +54,7 @@ resource "google_compute_target_https_proxy" "default" {
 
 # Regional HTTPS Target Proxy
 resource "google_compute_region_target_https_proxy" "default" {
-  count   = local.is_regional && local.is_http && local.enable_https ? 1 : 0
+  count   = local.create && local.is_regional && local.is_http && local.enable_https ? 1 : 0
   project = var.project_id
   name    = "${local.name_prefix}-https"
   url_map = one(google_compute_region_url_map.https).id
