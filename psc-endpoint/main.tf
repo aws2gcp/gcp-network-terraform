@@ -43,4 +43,5 @@ resource "google_compute_forwarding_rule" "default" {
   all_ports             = false
   allow_global_access   = var.global_access
   project               = var.project_id
+  depends_on            = [google_compute_address.default]
 }
