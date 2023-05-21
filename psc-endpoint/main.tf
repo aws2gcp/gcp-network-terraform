@@ -17,6 +17,7 @@ locals {
 
 # Create Internal Static IP address on given subnet in given region
 resource "google_compute_address" "default" {
+  count         = local.create ? 1 : 0
   name          = local.name
   description   = local.description
   subnetwork    = local.subnet_id
@@ -35,7 +36,7 @@ resource "google_compute_forwarding_rule" "default" {
   name                  = local.name
   network               = local.network_link
   region                = local.region
-  ip_address            = google_compute_address.default.self_link
+  ip_address            = one(google_compute_address.default).self_link
   target                = local.target_id
   subnetwork            = null
   load_balancing_scheme = ""
