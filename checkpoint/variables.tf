@@ -29,7 +29,7 @@ variable "install_type" {
   default = null
   validation {
     condition     = var.install_type != null ? var.install_type == "Cluster" || var.install_type == "Gateway only" || var.install_type == "AutoScale" || var.install_type == "Management only" || var.install_type == "Manual Configuration" : true
-    error_message = "Install type should be 'Cluster' or 'Gateway only' or 'AutoScale' or 'Management only'."
+    error_message = "Install type should be 'Cluster' or 'Gateway only' or 'AutoScale' or 'Management only' or 'Manual Configuration'."
   }
 }
 variable "instance_suffixes" {
