@@ -47,7 +47,7 @@ locals {
     }
   ]
   create_nic0_external_ips = local.create ? coalesce(var.create_nic0_external_ips, true) : false
-  create_nic1_external_ips = local.create ? coalesce(var.create_nic1_external_ips, true) : false
+  create_nic1_external_ips = local.create && local.is_gateway ? coalesce(var.create_nic1_external_ips, true) : false
 }
 
 # Create External Addresses to assign to nic0
