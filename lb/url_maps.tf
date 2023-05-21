@@ -42,7 +42,7 @@ locals {
 
 # Global HTTPS URL MAP
 resource "google_compute_url_map" "https" {
-  count           = local.is_http && local.is_global && local.enable_https ? 1 : 0
+  count           = local.create && local.is_http && local.is_global && local.enable_https ? 1 : 0
   project         = var.project_id
   name            = "${local.name_prefix}-https"
   default_service = local.default_service_id
@@ -84,7 +84,7 @@ resource "google_compute_url_map" "https" {
 }
 # Regional HTTPS URL MAP
 resource "google_compute_region_url_map" "https" {
-  count           = local.is_http && local.is_regional && local.enable_https ? 1 : 0
+  count           = local.create && local.is_http && local.is_regional && local.enable_https ? 1 : 0
   project         = var.project_id
   name            = "${local.name_prefix}-https"
   default_service = local.default_service_id
