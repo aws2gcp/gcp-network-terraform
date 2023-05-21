@@ -4,7 +4,7 @@ locals {
       name            = coalesce(v.name, k)
       peer_project_id = coalesce(v.peer_project_id, v.project_id, var.project_id)
     }
-  ) if coalesce(v, true) }
+  ) if coalesce(v.create, true) }
   peerings_with_network_links = { for k, v in local.peerings : k => merge(v,
     {
       # If peer network link not provided, we can generate it using their project ID and network name :)
