@@ -47,6 +47,7 @@
 |--------------------|--------------------------------------------------|----------|---------|
 | name_prefix        | Name Prefix for components of this Load Balancer | `string` | n/a     |
 | address            | IP address to use for the load balancer frontend | `string` | n/a     |
+| backends     | List of LB backends.  See structure below    | `list(object)` | [] | 
 | default_backend    | Key of the default backend to use                | `string` |         |
 | default_service_id | ID of a pre-existing backend service or bucket   | `string` | n/a     | 
 | backend_timeout    | Default timeout for all backends used by this LB | `number` | 30      |
