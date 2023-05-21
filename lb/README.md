@@ -1,4 +1,13 @@
-# Management of a Google Cloud Platform External HTTP(S) Load Balancer
+# Google Cloud Platform Load Balancers
+
+Supported Types:
+- External Global HTTP(S) non-classic
+- External Global HTTP(S) classic
+- External Regional HTTP(S)
+- Internal HTTP(S)
+- Internal TCP/UDP
+- Global TCP Proxy
+- Global SSL Proxy
 
 ## Resources 
 
