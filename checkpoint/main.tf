@@ -11,21 +11,21 @@ locals {
   install_image           = local.is_standalone ? "single" : (local.is_mig ? "mig" : "cluster")
   install_code            = local.is_manual || local.is_management_only ? "" : "${local.install_image}-"
   name                    = coalesce(var.name, substr("chkp-${local.install_code}-${var.region}", 0, 16))
-  generate_admin_password = var.admin_password == null ? true : false
-  generate_sic_key        = var.sic_key == null ? true : false
+  generate_admin_password = local.create && var.admin_password == null ? true : false
+  generate_sic_key        = local.create && var.sic_key == null ? true : false
   network_project_id      = coalesce(var.network_project_id, var.project_id)
 }
 
 # If Admin password not provided, create random 16 character one
 resource "random_string" "admin_password" {
-  count   = local.create && local.generate_admin_password ? 1 : 0
+  count   = local.generate_admin_password ? 1 : 0
   length  = 16
   special = false
 }
 
 # If SIC key not provided, create random 8 character one
 resource "random_string" "sic_key" {
-  count   = local.create && local.generate_sic_key ? 1 : 0
+  count   = local.generate_sic_key ? 1 : 0
   length  = 8
   special = false
 }
