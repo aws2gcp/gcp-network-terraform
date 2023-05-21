@@ -8,7 +8,7 @@ locals {
     type        = try(local.backends[i].type, "unknown")
     # Determine backend type by seeing if a key has been created for IG, SNEG, or INEG
     region          = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
-    protocol        = lookup(local.rnegs, i, null) != null ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.new_inegs[i]).protocol, null), "https")) : (local.is_tcp ? "TCP" : null)
+    protocol        = try(local.rnegs[i], null) != null ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.new_inegs[i]).protocol, null), "https")) : (local.is_tcp ? "TCP" : null)
     port_name       = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${i}-${coalesce(v.port, 80)}") : null
     timeout         = try(local.backends[i].type, "unknown") == "rneg" ? null : coalesce(v.timeout, var.backend_timeout, 30)
     healthcheck_ids = v.healthchecks != null ? [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))] : []

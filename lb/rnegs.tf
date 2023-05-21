@@ -1,7 +1,7 @@
 locals {
-  rnegs = {
-    for b, v in var.backends : k => [
-      for rneg in coalesce(v.rnegs, []) : {
+  rnegs = flatten([
+    for b, v in var.backends : [
+      for i, rneg in coalesce(v.rnegs, []) : {
         backend      = b
         type         = lookup(rneg, "psc_target", null) != null ? "psc" : "serverless"
         key          = "${b}-${i}"
@@ -18,8 +18,7 @@ locals {
         allow_unauthenticated = coalesce(rneg.allow_unauthenticated, false)
         allowed_members       = coalesce(rneg.allowed_members, [])
       }
-    ] if length(coalesce(v.rnegs, [])) > 0 && local.is_http
-  }
+  ] if length(coalesce(v.rnegs, [])) > 0 && local.is_http])
   new_rnegs = flatten([
     for k, rnegs in local.rnegs : [
       for i, rneg in coalesce(rnegs, []) : merge(rneg, {
