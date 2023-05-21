@@ -242,8 +242,9 @@ variable "routing_rules" {
 }
 variable "backends" {
   description = "Map of all backend services & buckets"
-  type = map(object({
+  type = list(object({
     create             = optional(bool)
+    name               = optional(string)
     type               = optional(string) # We'll try and figure it out automatically
     description        = optional(string)
     region             = optional(string)
@@ -304,10 +305,10 @@ variable "backends" {
     custom_request_headers      = optional(list(string))
     custom_response_headers     = optional(list(string))
   }))
-  default = {}
-  validation {
-    condition     = alltrue([for k, v in var.backends : length(k) < 32 ? true : false])
-    error_message = "Backend key values must be under 32 characters."
-  }
-
+  default = [{
+    name = "example"
+    ineg = {
+      fqdn = "teapotme.com"
+    }
+  }]
 }

@@ -12,7 +12,7 @@ locals {
 resource "google_compute_global_network_endpoint_group" "default" {
   for_each              = local.is_global ? local.new_inegs : {}
   project               = var.project_id
-  name                  = "${each.key}-${one(each.value).port}"
+  name                  = "ineg-${each.key}-${one(each.value).port}"
   network_endpoint_type = one(each.value).fqdn != null ? "INTERNET_FQDN_PORT" : "INTERNET_IP_PORT"
   default_port          = local.https_port
 }

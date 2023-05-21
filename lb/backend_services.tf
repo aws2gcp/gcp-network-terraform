@@ -1,21 +1,21 @@
 locals {
   default_balancing_mode = local.type == "TCP" ? "CONNECTION" : "UTILIZATION"
   hc_prefix              = "projects/${var.project_id}/${local.is_regional ? "regions/${var.region}" : "global"}/healthChecks"
-  backend_services = { for k, v in var.backends : k => {
-    create = coalesce(v.create, true)
+  backend_services = flatten([for i, v in var.backends : [merge(v, {
+    create      = coalesce(v.create, true)
+    name        = coalesce(v.name, "${local.name_prefix}-${i}")
+    description = coalesce(v.description, "Backend Service '${i}'")
+    type        = try(local.backends[i].type, "unknown")
     # Determine backend type by seeing if a key has been created for IG, SNEG, or INEG
-    type            = try(local.backends[k].type, "unknown")
-    name            = "${local.name_prefix}-${k}"
-    description     = coalesce(v.description, "Backend Service '${k}'")
     region          = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
-    protocol        = lookup(local.rnegs, k, null) != null ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.new_inegs[k]).protocol, null), "https")) : (local.is_tcp ? "TCP" : null)
-    port_name       = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${k}-${coalesce(v.port, 80)}") : null
-    timeout         = try(local.backends[k].type, "unknown") == "rneg" ? null : coalesce(v.timeout, var.backend_timeout, 30)
+    protocol        = lookup(local.rnegs, i, null) != null ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.new_inegs[i]).protocol, null), "https")) : (local.is_tcp ? "TCP" : null)
+    port_name       = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${i}-${coalesce(v.port, 80)}") : null
+    timeout         = try(local.backends[i].type, "unknown") == "rneg" ? null : coalesce(v.timeout, var.backend_timeout, 30)
     healthcheck_ids = v.healthchecks != null ? [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))] : []
     groups = coalesce(v.groups,
-      try(local.backends[k].type, "unknown") == "igs" && lookup(local.instance_groups, k, null) != null ? local.instance_groups[k].ids : null,
-      try(local.backends[k].type, "unknown") == "rneg" ? [for rneg in local.new_rnegs : google_compute_region_network_endpoint_group.default[rneg.key].id if rneg.backend == k] : null,
-      try(local.backends[k].type, "unknown") == "ineg" && lookup(local.new_inegs, k, null) != null ? [google_compute_global_network_endpoint_group.default[k].id] : null,
+      try(local.backends[i].type, "unknown") == "igs" && lookup(local.instance_groups, i, null) != null ? local.instance_groups[i].ids : null,
+      try(local.backends[i].type, "unknown") == "rneg" ? [for rneg in local.new_rnegs : google_compute_region_network_endpoint_group.default[rneg.key].id if rneg.backend == i] : null,
+      try(local.backends[i].type, "unknown") == "ineg" && lookup(local.new_inegs, i, null) != null ? [google_compute_global_network_endpoint_group.default[i].id] : null,
       [] # This will result in 'has no backends configured' which is easier to troubleshoot than an ugly error
     )
     logging                     = coalesce(v.logging, var.backend_logging, false)
@@ -37,12 +37,12 @@ locals {
     custom_request_headers      = v.custom_request_headers
     custom_response_headers     = v.custom_response_headers
     use_iap                     = local.is_http && v.iap != null ? true : false
-  } if contains(["igs", "rneg", "ineg"], try(local.backends[k].type, "unknown")) }
+  })] if contains(["igs", "rneg", "ineg"], try(local.backends[i].type, "unknown"))])
 }
 
 # Global Backend Service
 resource "google_compute_backend_service" "default" {
-  for_each                        = local.is_global ? { for k, v in local.backend_services : k => v if v.create } : {}
+  for_each                        = local.is_global ? { for i, v in local.backend_services : i => v if v.create } : {}
   project                         = var.project_id
   name                            = each.value.name
   description                     = each.value.description
@@ -113,7 +113,7 @@ resource "google_compute_backend_service" "default" {
 
 # Regional Backend Service
 resource "google_compute_region_backend_service" "default" {
-  for_each                        = local.is_regional ? local.backend_services : {}
+  for_each                        = local.is_regional ? { for i, v in local.backend_services : i => v if v.create } : {}
   project                         = var.project_id
   name                            = each.value.name
   description                     = each.value.description
