@@ -1,8 +1,9 @@
 locals {
   peerings = { for k, v in var.peerings : k => merge(v,
     {
-      name            = coalesce(v.name, k)
-      peer_project_id = coalesce(v.peer_project_id, v.project_id, var.project_id)
+      name              = coalesce(v.name, k)
+      peer_project_id   = coalesce(v.peer_project_id, v.project_id, var.project_id)
+      peer_network_name = coalesce(v.peer_network_name, "default")
     }
   ) if coalesce(v.create, true) }
   peerings_with_network_links = { for k, v in local.peerings : k => merge(v,
