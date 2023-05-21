@@ -18,14 +18,14 @@ locals {
 
 # If Admin password not provided, create random 16 character one
 resource "random_string" "admin_password" {
-  count   = local.generate_admin_password ? 1 : 0
+  count   = local.create && local.generate_admin_password ? 1 : 0
   length  = 16
   special = false
 }
 
 # If SIC key not provided, create random 8 character one
 resource "random_string" "sic_key" {
-  count   = local.generate_sic_key ? 1 : 0
+  count   = local.create && local.generate_sic_key ? 1 : 0
   length  = 8
   special = false
 }
@@ -46,8 +46,8 @@ locals {
     nic1_address_name = "${local.address_names["nic1"][i]}-nic1-address"
     }
   ]
-  create_nic0_external_ips = coalesce(var.create_nic0_external_ips, true)
-  create_nic1_external_ips = coalesce(var.create_nic1_external_ips, true)
+  create_nic0_external_ips = local.create ? coalesce(var.create_nic0_external_ips, true) : false
+  create_nic1_external_ips = local.create ? coalesce(var.create_nic1_external_ips, true) : false
 }
 
 # Create External Addresses to assign to nic0
