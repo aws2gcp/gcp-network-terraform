@@ -7,7 +7,8 @@ locals {
   ) if coalesce(v, true) }
   peerings_with_network_links = { for k, v in local.peerings : k => merge(v,
     {
-      peer_network_link = "projects/${v.peer_project_id}/global/networks/${v.peer_network_name}"
+      # If peer network link not provided, we can generate it using their project ID and network name :)
+      peer_network_link = coalesce(v.peer_network_link, "projects/${v.peer_project_id}/global/networks/${v.peer_network_name}")
     }
   ) }
 
