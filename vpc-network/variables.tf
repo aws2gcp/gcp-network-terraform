@@ -82,7 +82,8 @@ variable "peerings" {
     project_id                          = optional(string)
     name                                = optional(string)
     peer_project_id                     = optional(string)
-    peer_network_name                   = string
+    peer_network_name                   = optional(string)
+    peer_network_link                   = optional(string)
     import_custom_routes                = optional(bool)
     export_custom_routes                = optional(bool)
     import_subnet_routes_with_public_ip = optional(bool)
