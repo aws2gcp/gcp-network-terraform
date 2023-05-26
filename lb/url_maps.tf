@@ -30,14 +30,14 @@ resource "google_compute_region_url_map" "http" {
 
 locals {
   # Get the IDs for each backend.  It should be a global backend bucket or service, or a regional backend service
-  backend_ids = { for i, v in local.backends : i =>
+  backend_ids = { for i, v in local.backends : v.name =>
     try(coalesce(
-      v.type == "bucket" && local.is_global ? google_compute_backend_bucket.default[i].id : null,
-      v.type != "bucket" && local.is_global ? google_compute_backend_service.default[i].id : null,
-      v.type != "bucket" && local.is_regional ? google_compute_region_backend_service.default[i].id : null,
+      v.type == "bucket" && local.is_global ? google_compute_backend_bucket.default[v.name].id : null,
+      v.type != "bucket" && local.is_global ? google_compute_backend_service.default[v.name].id : null,
+      v.type != "bucket" && local.is_regional ? google_compute_region_backend_service.default[v.name].id : null,
     ), null)
   }
-  default_service_id = lookup(local.backend_ids, coalesce(var.default_backend, 0), 0)
+  default_service_id = lookup(local.backend_ids, coalesce(var.default_backend, local.backends[0].name), "error")
 }
 
 # Global HTTPS URL MAP

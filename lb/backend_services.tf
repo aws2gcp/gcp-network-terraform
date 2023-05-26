@@ -42,7 +42,7 @@ locals {
 
 # Global Backend Service
 resource "google_compute_backend_service" "default" {
-  for_each                        = local.is_global ? { for i, v in local.backend_services : i => v if v.create } : {}
+  for_each                        = local.is_global ? { for i, v in local.backend_services : v.name => v if v.create } : {}
   project                         = var.project_id
   name                            = each.value.name
   description                     = each.value.description
@@ -51,7 +51,7 @@ resource "google_compute_backend_service" "default" {
   protocol                        = each.value.type == "rneg" ? "HTTPS" : each.value.protocol
   port_name                       = each.value.type == "igs" ? each.value.port_name : null
   timeout_sec                     = each.value.timeout
-  health_checks                   = each.value.type == "igs" ? local.backend_services[each.key].healthcheck_ids : null
+  health_checks                   = each.value.type == "igs" ? each.value.healthcheck_ids : null
   session_affinity                = each.value.type == "igs" ? each.value.affinity_type : null
   connection_draining_timeout_sec = each.value.connection_draining_timeout
   custom_request_headers          = each.value.custom_request_headers
@@ -61,11 +61,11 @@ resource "google_compute_backend_service" "default" {
     for_each = each.value.groups
     content {
       group                 = backend.value
-      capacity_scaler       = local.backend_services[each.key].capacity_scaler
+      capacity_scaler       = each.value.capacity_scaler
       balancing_mode        = each.value.type == "ineg" ? null : local.default_balancing_mode
-      max_rate_per_instance = each.value.type == "igs" ? local.backend_services[each.key].max_rate_per_instance : null
-      max_utilization       = each.value.type == "igs" ? local.backend_services[each.key].max_utilization : null
-      max_connections       = each.value.type == "igs" ? local.backend_services[each.key].max_connections : null
+      max_rate_per_instance = each.value.type == "igs" ? each.value.max_rate_per_instance : null
+      max_utilization       = each.value.type == "igs" ? each.value.max_utilization : null
+      max_connections       = each.value.type == "igs" ? each.value.max_connections : null
     }
   }
   dynamic "log_config" {
@@ -113,7 +113,7 @@ resource "google_compute_backend_service" "default" {
 
 # Regional Backend Service
 resource "google_compute_region_backend_service" "default" {
-  for_each                        = local.is_regional ? { for i, v in local.backend_services : i => v if v.create } : {}
+  for_each                        = local.is_regional ? { for i, v in local.backend_services : v.name => v if v.create } : {}
   project                         = var.project_id
   name                            = each.value.name
   description                     = each.value.description
@@ -122,7 +122,7 @@ resource "google_compute_region_backend_service" "default" {
   protocol                        = each.value.type == "rneg" ? "HTTPS" : each.value.protocol
   port_name                       = each.value.type == "igs" ? each.value.port_name : null
   timeout_sec                     = each.value.timeout
-  health_checks                   = each.value.type == "igs" ? local.backend_services[each.key].healthcheck_ids : null
+  health_checks                   = each.value.type == "igs" ? each.value.healthcheck_ids : null
   session_affinity                = each.value.type == "igs" ? each.value.affinity_type : null
   connection_draining_timeout_sec = each.value.connection_draining_timeout
   #security_policy = each.value.security_policy
@@ -130,11 +130,11 @@ resource "google_compute_region_backend_service" "default" {
     for_each = each.value.groups
     content {
       group                 = backend.value
-      capacity_scaler       = local.backend_services[each.key].capacity_scaler
+      capacity_scaler       = each.value.capacity_scaler
       balancing_mode        = each.value.type == "ineg" ? null : local.default_balancing_mode
-      max_rate_per_instance = each.value.type == "igs" ? local.backend_services[each.key].max_rate_per_instance : null
-      max_utilization       = each.value.type == "igs" ? local.backend_services[each.key].max_utilization : null
-      max_connections       = each.value.type == "igs" ? local.backend_services[each.key].max_connections : null
+      max_rate_per_instance = each.value.type == "igs" ? each.value.max_rate_per_instance : null
+      max_utilization       = each.value.type == "igs" ? each.value.max_utilization : null
+      max_connections       = each.value.type == "igs" ? each.value.max_connections : null
     }
   }
   dynamic "log_config" {
