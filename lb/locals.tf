@@ -31,9 +31,10 @@ locals {
   labels                 = coalesce(var.labels, {})
   # Do a quick walk over the backends to determine which type each is.  This will help error checking later.
   backend_groups_ids = { for k, backend in var.backends : k => [for group in coalesce(backend.groups, []) : group] }
-  backends = [for i, v in var.backends : {
+  backends = [for i, v in var.backends : merge(v, {
+    name = coalesce(v.name, "backend=${i}")
     type = coalesce(v.type,
-      lookup(local.instance_groups, i, null) != null ? "igs" : null,
+      #lookup(local.instance_groups, i, null) != null ? "igs" : null,
       length(coalesce(lookup(v, "instance_groups", null), [])) > 0 ? "igs" : null,
       length(coalesce(lookup(v, "healthchecks", null), [])) > 0 ? "igs" : null,
       length(coalesce(lookup(v, "rnegs", null), [])) > 0 ? "rneg" : null,
@@ -41,7 +42,7 @@ locals {
       lookup(v, "bucket_name", null) != null ? "bucket" : null,
       "unknown" # this should never happen
     )
-  } if v.create != false]
+  }) if v.create != false]
 }
 
 # Generate a random 8-character string for name_prefix, if required

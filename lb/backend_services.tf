@@ -1,7 +1,7 @@
 locals {
   default_balancing_mode = local.type == "TCP" ? "CONNECTION" : "UTILIZATION"
   hc_prefix              = "projects/${var.project_id}/${local.is_regional ? "regions/${var.region}" : "global"}/healthChecks"
-  backend_services = flatten([for i, v in var.backends : [merge(v, {
+  backend_services = flatten([for i, v in local.backends : [merge(v, {
     create      = coalesce(v.create, true)
     name        = coalesce(v.name, "${local.name_prefix}-${i}")
     description = coalesce(v.description, "Backend Service '${i}'")
@@ -9,7 +9,7 @@ locals {
     # Determine backend type by seeing if a key has been created for IG, SNEG, or INEG
     region          = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
     protocol        = try(local.rnegs[i], null) != null ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.new_inegs[i]).protocol, null), "https")) : (local.is_tcp ? "TCP" : null)
-    port_name       = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${i}-${coalesce(v.port, 80)}") : null
+    port_name       = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${v.name}-${coalesce(v.port, 80)}") : null
     timeout         = try(local.backends[i].type, "unknown") == "rneg" ? null : coalesce(v.timeout, var.backend_timeout, 30)
     healthcheck_ids = v.healthchecks != null ? [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))] : []
     groups = coalesce(v.groups,
