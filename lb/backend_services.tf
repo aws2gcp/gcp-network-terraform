@@ -77,6 +77,7 @@ resource "google_compute_backend_service" "default" {
       minimum_ring_size = 1
     }
   }
+  /*
   dynamic "iap" {
     for_each = each.value.use_iap ? [true] : []
     content {
@@ -84,6 +85,7 @@ resource "google_compute_backend_service" "default" {
       oauth2_client_secret = google_iap_client.default[each.key].secret
     }
   }
+  */
   enable_cdn = var.enable_cdn
   dynamic "cdn_policy" {
     for_each = var.enable_cdn == true ? [true] : []
