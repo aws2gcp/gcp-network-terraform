@@ -2,7 +2,7 @@ locals {
   default_balancing_mode = local.type == "TCP" ? "CONNECTION" : "UTILIZATION"
   hc_prefix              = "projects/${var.project_id}/${local.is_regional ? "regions/${var.region}" : "global"}/healthChecks"
   backend_services = flatten([for i, v in local.backends : [merge(v, {
-    name = v.name
+    #name = v.name
     description     = coalesce(v.description, "Backend Service '${i}'")
     region          = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
     protocol        = v.type == "rneg" ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.new_inegs[i]).protocol, null), "https")) : (local.is_tcp ? "TCP" : null)
