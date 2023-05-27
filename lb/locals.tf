@@ -42,7 +42,8 @@ locals {
       lookup(v, "bucket_name", null) != null ? "bucket" : null,
       "unknown" # this should never happen
     )
-    create = coalesce(v.create, true)
+    use_iap = local.is_http && lookup(v, "iap", null) != null ? true : false
+    create  = coalesce(v.create, true)
   }) if v.create != false]
 }
 

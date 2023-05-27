@@ -32,7 +32,7 @@ locals {
     connection_draining_timeout = coalesce(v.connection_draining_timeout, 300)
     custom_request_headers      = v.custom_request_headers
     custom_response_headers     = v.custom_response_headers
-    use_iap                     = local.is_http && v.iap != null ? true : false
+    use_iap                     = v.use_iap
   })] if contains(["igs", "rneg", "ineg"], try(local.backends[i].type, "unknown"))])
 }
 

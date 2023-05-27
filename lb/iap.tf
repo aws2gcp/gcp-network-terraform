@@ -1,15 +1,15 @@
 locals {
-  iap_backends = [for i, v in local.backend_services : {
+  iap_backends = [for i, v in local.backends : {
     #web_backend_service = coalesce(
     #local.is_global ? google_compute_backend_service.default[k] : null,
     #local.is_regional ? google_compute_region_backend_service.default[k] : null,
     #)
-    application_title   = coalesce(var.backends[i].iap.application_title, i)
-    support_email       = var.backends[i].iap.support_email
+    application_title   = coalesce(v.iap.application_title, v.name)
+    support_email       = v.iap.support_email
     web_backend_service = v.name
     role                = "roles/iap.httpsResourceAccessor"
-    display_name        = i
-    members             = var.backends[i].iap.members
+    display_name        = v.name
+    members             = v.iap.members
     create              = v.create
   } if v.use_iap == true]
 }
