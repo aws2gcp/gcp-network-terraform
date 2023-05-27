@@ -3,7 +3,7 @@ locals {
   hc_prefix              = "projects/${var.project_id}/${local.is_regional ? "regions/${var.region}" : "global"}/healthChecks"
   backend_services = flatten([for i, v in local.backends : [merge(v, {
     #name = v.name
-    description     = coalesce(v.description, "Backend Service '${i}'")
+    description     = coalesce(v.description, "Backend Service '${v.name}'")
     region          = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
     protocol        = v.type == "rneg" ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.new_inegs[i]).protocol, null), "https")) : (local.is_tcp ? "TCP" : null)
     port_name       = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${v.name}-${coalesce(v.port, 80)}") : null
