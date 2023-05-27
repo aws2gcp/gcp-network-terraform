@@ -40,6 +40,7 @@ locals {
   default_service_id = lookup(local.backend_ids, coalesce(var.default_backend, local.backends[0].name), "error")
   routing_rules = [for i, v in coalesce(var.routing_rules, []) : merge(v, {
     name       = coalesce(v.name, "path-matcher-${i + 1}")
+    hosts      = [for host in v.hosts : length(split(".", host)) > 1 ? host : "${host}.${var.domains[0]}"]
     path_rules = coalesce(v.path_rules, [])
   })]
 }

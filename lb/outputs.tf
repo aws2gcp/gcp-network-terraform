@@ -9,8 +9,8 @@ output "ipv6_address" {
 }
 output "backends" {
   value = {
-    for i, v in flatten(concat(local.backend_services, local.backend_buckets)) : i => {
-      name     = v.name
+    for i, v in flatten(concat(local.backend_services, local.backend_buckets)) : v.name => {
+      #name     = v.name
       type     = v.type
       region   = local.is_regional ? lookup(v, "region", "error") : "global"
       protocol = lookup(v, "protocol", null)

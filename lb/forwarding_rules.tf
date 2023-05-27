@@ -1,11 +1,11 @@
 locals {
   ports                = !local.is_http && length(coalesce(var.ports, [])) > 0 ? var.ports : null
   all_ports            = var.all_ports && local.ports == null && var.port_range == null ? true : false
-  default_backend_name = local.create ? coalesce(var.default_backend, local.backend_services[0].name) : null
-  backend_index        = local.create ? one([for i, v in local.backend_services : i if v.name == local.default_backend_name]) : null
+  default_backend_name = local.create ? coalesce(var.default_backend, local.backends[0].name) : null
+  #backend_index        = local.create ? one([for i, v in local.backend_services : i if v.name == local.default_backend_name]) : null
   service_id = !local.is_http ? try(coalesce(
-    local.is_global ? google_compute_backend_service.default[local.backend_index].id : null,
-    local.is_regional ? google_compute_region_backend_service.default[local.backend_index].id : null,
+    local.is_global ? google_compute_backend_service.default[local.default_backend_name].id : null,
+    local.is_regional ? google_compute_region_backend_service.default[local.default_backend_name].id : null,
   ), null) : null
   target_id = local.is_tcp || local.is_ssl ? try(coalesce(
     local.is_global ? one(google_compute_target_tcp_proxy.default).id : null
