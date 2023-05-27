@@ -38,6 +38,10 @@ locals {
     ), null)
   }
   default_service_id = lookup(local.backend_ids, coalesce(var.default_backend, local.backends[0].name), "error")
+  routing_rules = [for i, v in coalesce(var.routing_rules, []) : merge(v, {
+    name       = coalesce(v.name, "path-matcher-${i + 1}")
+    path_rules = coalesce(v.path_rules, [])
+  })]
 }
 
 # Global HTTPS URL MAP
@@ -47,16 +51,16 @@ resource "google_compute_url_map" "https" {
   name            = "${local.name_prefix}-https"
   default_service = local.default_service_id
   dynamic "host_rule" {
-    for_each = coalesce(var.routing_rules, {})
+    for_each = local.routing_rules
     content {
-      path_matcher = host_rule.key
+      path_matcher = host_rule.value.name
       hosts        = host_rule.value.hosts
     }
   }
   dynamic "path_matcher" {
-    for_each = coalesce(var.routing_rules, {})
+    for_each = local.routing_rules
     content {
-      name            = path_matcher.key
+      name            = path_matcher.value.name
       default_service = lookup(local.backend_ids, coalesce(path_matcher.value.backend, path_matcher.key), null)
       dynamic "route_rules" {
         for_each = path_matcher.value.request_headers_to_remove != null ? [true] : []
@@ -72,7 +76,7 @@ resource "google_compute_url_map" "https" {
         }
       }
       dynamic "path_rule" {
-        for_each = coalesce(path_matcher.value.path_rules, [])
+        for_each = path_matcher.value.path_rules
         content {
           paths   = path_rule.value.paths
           service = path_rule.value.backend
@@ -89,19 +93,19 @@ resource "google_compute_region_url_map" "https" {
   name            = "${local.name_prefix}-https"
   default_service = local.default_service_id
   dynamic "host_rule" {
-    for_each = coalesce(var.routing_rules, {})
+    for_each = local.routing_rules
     content {
-      path_matcher = host_rule.key
+      path_matcher = host_rule.value.name
       hosts        = host_rule.value.hosts
     }
   }
   dynamic "path_matcher" {
-    for_each = coalesce(var.routing_rules, {})
+    for_each = local.routing_rules
     content {
-      name            = path_matcher.key
+      name            = path_matcher.value.name
       default_service = lookup(local.backend_ids, coalesce(path_matcher.value.backend, path_matcher.key), null)
       dynamic "path_rule" {
-        for_each = coalesce(path_matcher.value.path_rules, [])
+        for_each = path_matcher.value.path_rules
         content {
           paths   = path_rule.value.paths
           service = path_rule.value.backend

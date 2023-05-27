@@ -14,19 +14,36 @@ locals {
     zone         = ig.zone
     id           = "${local.zones_prefix}/${ig.zone}/instanceGroups/${ig.name}"
     instances    = coalesce(lookup(ig, "instances", null), [])
-    port_name    = coalesce(v.port_name, v.port, 80) == 80 ? "http" : "${v.name}-${coalesce(v.port, 80)}"
-    port_number  = coalesce(v.port, local.http_port)
     create       = v.create
   } if lookup(ig, "id", null) == null]])
-  umig_ids = flatten([for i, v in local.backends : concat(
-    [for umig in local.umigs_with_ids : umig.id if umig.backend_name == v.name],
-    [for umig in local.umigs_without_ids : umig.id if umig.backend_name == v.name],
-  )])
+  umigs = flatten([for i, v in local.backends : {
+    backend_name = v.name
+    ids = concat(
+      [for umig in local.umigs_with_ids : umig.id if umig.backend_name == v.name],
+      [for umig in local.umigs_without_ids : umig.id if umig.backend_name == v.name],
+    )
+  }])
   # If instances were provided, we'll create an unmanaged instance group for them
   new_umigs = flatten([for i, v in local.umigs_without_ids : merge(v, {
     key    = "${v.zone}-${v.name}"
     create = true
   }) if length(v.instances) > 0])
+  instance_groups = flatten([for i, v in local.backends : [
+    for ig_index, ig in coalesce(v.instance_groups, []) : {
+      backend_name = v.name
+      ids          = concat(coalesce(v.groups, []), [for umig in local.umigs : umig.ids if umig.backend_name == v.name])
+      port_name    = local.is_http ? v.port_name : null
+      port_number  = local.is_http ? coalesce(v.port, 80) : null
+  }] if v.type == "igs"])
+  backends_with_new_umigs = toset([for i, v in local.new_umigs : v.backend_name])
+  named_ports = flatten([for i, v in local.instance_groups : [for group in v.ids : {
+    key          = "${v.backend_name}-${i}-${v.port_number}"
+    group        = group
+    name         = coalesce(v.port_name, v.port_number == 80 ? "http" : "${v.backend_name}-${v.port_number}")
+    port         = coalesce(v.port_number, local.http_port)
+    backend_name = v.backend_name
+    create       = !contains(local.backends_with_new_umigs, v.backend_name)
+  }] if local.is_http])
 }
 
 # Create new UMIGs if required
@@ -37,35 +54,17 @@ resource "google_compute_instance_group" "default" {
   network   = local.network
   instances = formatlist("${local.zones_prefix}/${each.value.zone}/instances/%s", each.value.instances)
   zone      = each.value.zone
+  # Also do named ports within the instance group
   dynamic "named_port" {
-    for_each = local.is_http ? [true] : []
+    for_each = local.is_http ? [for np in local.named_ports : np if np.backend_name == each.value.backend_name] : []
     content {
-      name = each.value.port_name
-      port = each.value.port_number
+      name = named_port.value.name
+      port = named_port.value.port
     }
   }
 }
 
-# Create Named port for HTTP(S) load balancers
-locals {
-  instance_groups = flatten([
-    for i, v in local.backends : [
-      for ig_index, ig in coalesce(v.instance_groups, []) : {
-        backend_name = v.name
-        port_name    = coalesce(v.port_name, v.port, 80) == 80 ? "http" : "${v.name}-${coalesce(v.port, 80)}"
-        port_number  = coalesce(v.port, local.http_port)
-        ids          = concat(coalesce(v.groups, []), local.umig_ids)
-  }] if length(coalesce(v.groups, [])) > 0 || length(coalesce(v.instance_groups, [])) > 0])
-  backends_with_new_umigs = toset([for i, v in local.new_umigs : v.backend_name])
-  named_ports = flatten([for i, v in local.instance_groups : [for group in v.ids : {
-    key          = "${i}-${element(split("/", group), 5)}-${v.port_name}-${v.port_number}"
-    group        = group
-    name         = v.port_name
-    port         = v.port_number
-    backend_name = v.backend_name
-    create       = !contains(local.backends_with_new_umigs, v.backend_name)
-  }] if local.is_http])
-}
+# Add Named ports to existing Instance Groups
 resource "google_compute_instance_group_named_port" "default" {
   for_each   = { for i, v in local.named_ports : "${v.key}" => v if v.create }
   project    = var.project_id

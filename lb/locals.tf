@@ -28,7 +28,7 @@ locals {
   subnetwork             = local.is_internal ? local.subnet_id : null
   global_access          = local.is_internal ? coalesce(var.global_access, false) : false
   is_mirroring_collector = local.is_internal ? false : null
-  labels                 = coalesce(var.labels, {})
+  labels                 = { for k, v in coalesce(var.labels, {}) : k => lower(replace(v, " ", "_")) }
   # Do a quick walk over the backends to determine which type each is.  This will help error checking later.
   backend_groups_ids = { for k, backend in var.backends : k => [for group in coalesce(backend.groups, []) : group] }
   backends = [for i, v in var.backends : merge(v, {

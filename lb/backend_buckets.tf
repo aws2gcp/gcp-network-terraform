@@ -6,7 +6,7 @@ locals {
     description = coalesce(v.description, "Backend Bucket '${v.name}'")
     enable_cdn  = coalesce(v.enable_cdn, true) # This is probably static content, so why not?
     create      = coalesce(v.create, true)
-  } if try(local.backends[i].type, "unknown") == "bucket" && local.is_http && local.is_global && local.is_external]
+  } if local.backends[i].type == "bucket" && local.is_http && local.is_global && local.is_external]
 }
 
 # Backend Buckets

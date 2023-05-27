@@ -28,7 +28,7 @@ locals {
     capacity_scaler             = local.is_managed ? coalesce(v.capacity_scaler, 1.0) : null
     max_connections             = local.is_global && local.is_tcp ? coalesce(v.max_connections, 32768) : null
     max_utilization             = local.is_managed ? coalesce(v.max_utilization, 0.8) : null
-    max_rate_per_instance       = local.is_managed ? coalesce(v.max_rate_per_instance, 512) : null
+    max_rate_per_instance       = local.is_managed && v.max_rate_per_instance != null ? v.max_rate_per_instance : null
     connection_draining_timeout = coalesce(v.connection_draining_timeout, 300)
     custom_request_headers      = v.custom_request_headers
     custom_response_headers     = v.custom_response_headers

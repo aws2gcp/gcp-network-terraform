@@ -46,10 +46,12 @@ variable "min_tls_version" {
   default     = null
 }
 variable "ssl_certs" {
-  description = "Map of SSL Certificates to upload to Google Certificate Manager"
-  type = map(object({
-    certificate = string
-    private_key = string
+  description = "List of SSL Certificates to upload to Google Certificate Manager"
+  type = list(object({
+    create      = optional(bool)
+    name        = optional(string)
+    certificate = optional(string)
+    private_key = optional(string)
     description = optional(string)
   }))
   default = null
@@ -67,6 +69,16 @@ variable "use_gmc" {
 variable "use_ssc" {
   description = "Use Self-Signed Certs"
   type        = bool
+  default     = null
+}
+variable "ssc_valid_years" {
+  description = "For self-signed certs, the number of years they should be valid for"
+  type        = number
+  default     = null
+}
+variable "ssc_ca_org" {
+  description = "For self-signed certs, the name of the fake issuing CA"
+  type        = string
   default     = null
 }
 variable "domains" {
@@ -227,18 +239,22 @@ variable "psc" {
 }
 variable "routing_rules" {
   description = "Route rules to send different hostnames/paths to different backends"
-  type = map(object({
+  type = list(object({
+    create                    = optional(bool)
+    name                      = optional(string)
     priority                  = optional(number)
     hosts                     = list(string)
     backend                   = optional(string)
+    backend_name              = optional(string)
     path                      = optional(string)
     request_headers_to_remove = optional(list(string))
     path_rules = optional(list(object({
-      paths   = list(string)
-      backend = string
+      paths        = list(string)
+      backend_name = optional(string)
+      backend      = string
     })))
   }))
-  default = {}
+  default = null
 }
 variable "backends" {
   description = "Map of all backend services & buckets"
@@ -307,8 +323,6 @@ variable "backends" {
   }))
   default = [{
     name = "example"
-    ineg = {
-      fqdn = "teapotme.com"
-    }
+    ineg = { fqdn = "teapotme.com" }
   }]
 }
