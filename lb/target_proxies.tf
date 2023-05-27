@@ -58,7 +58,7 @@ resource "google_compute_region_target_https_proxy" "default" {
   project = var.project_id
   name    = "${local.name_prefix}-https"
   url_map = one(google_compute_region_url_map.https).id
-  ssl_certificates = local.use_ssc ? [google_compute_region_ssl_certificate.default["self_signed"].name] : [
+  ssl_certificates = local.use_ssc ? [google_compute_region_ssl_certificate.default["self-signed"].name] : [
     for i, v in local.certs_to_upload : google_compute_region_ssl_certificate.default[v.name].id
   ]
   #ssl_policy       = local.ssl_policy
