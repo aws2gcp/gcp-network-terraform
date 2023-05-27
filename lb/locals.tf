@@ -32,7 +32,7 @@ locals {
   # Do a quick walk over the backends to determine which type each is.  This will help error checking later.
   backend_groups_ids = { for k, backend in var.backends : k => [for group in coalesce(backend.groups, []) : group] }
   backends = [for i, v in var.backends : merge(v, {
-    name = coalesce(v.name, "backend=${i}")
+    name = coalesce(v.name, "${local.name_prefix}-${i}")
     type = coalesce(v.type,
       #lookup(local.instance_groups, i, null) != null ? "igs" : null,
       length(coalesce(lookup(v, "instance_groups", null), [])) > 0 ? "igs" : null,
@@ -42,6 +42,7 @@ locals {
       lookup(v, "bucket_name", null) != null ? "bucket" : null,
       "unknown" # this should never happen
     )
+    create = coalesce(v.create, true)
   }) if v.create != false]
 }
 
