@@ -10,8 +10,8 @@ locals {
     healthcheck_ids = v.healthchecks != null ? [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))] : []
     groups = coalesce(v.groups,
       v.type == "igs" ? flatten([for ig_index, ig in local.instance_groups : ig.id if ig.backend_name == v.name]) : null,
-      v.type == "rneg" ? flatten([for rneg_index, rneg in local.new_rnegs : google_compute_region_network_endpoint_group.default["${rneg.backend_name}-${rneg_index}"].id if rneg.backend_name == v.name]) : null,
-      v.type == "ineg" ? flatten([for ineg_index, ineg in local.new_inegs : google_compute_global_network_endpoint_group.default["${ineg.backend_name}-${ineg_index}"].id if ineg.backend_name == v.name]) : null,
+      #v.type == "rneg" ? flatten([for rneg_index, rneg in local.new_rnegs : google_compute_region_network_endpoint_group.default["${rneg.backend_name}-${rneg_index}"].id if rneg.backend_name == v.name]) : null,
+      #v.type == "ineg" ? flatten([for ineg_index, ineg in local.new_inegs : google_compute_global_network_endpoint_group.default["${ineg.backend_name}-${ineg_index}"].id if ineg.backend_name == v.name]) : null,
       [] # This will result in 'has no backends configured' which is easier to troubleshoot than an ugly error
     )
     logging                     = coalesce(v.logging, var.backend_logging, false)
