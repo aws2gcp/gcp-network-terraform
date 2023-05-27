@@ -111,7 +111,7 @@ resource "google_compute_backend_service" "default" {
 
 # Regional Backend Service
 resource "google_compute_region_backend_service" "default" {
-  for_each                        = local.is_regional ? { for i, v in local.backend_services : v.name => v if v.create } : {}
+  for_each                        = { for i, v in local.backend_services : v.name => v if v.create && local.is_regional }
   project                         = var.project_id
   name                            = each.value.name
   description                     = each.value.description
