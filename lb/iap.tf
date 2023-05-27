@@ -10,24 +10,25 @@ locals {
     role                = "roles/iap.httpsResourceAccessor"
     display_name        = i
     members             = var.backends[i].iap.members
+    create              = v.create
   } if v.use_iap == true]
 }
 
 resource "google_iap_brand" "default" {
-  for_each          = { for i, v in local.iap_backends : i => v }
+  for_each          = { for i, v in local.iap_backends : i => v if v.create }
   project           = var.project_id
   application_title = each.value.application_title
   support_email     = each.value.support_email
 }
 
 resource "google_iap_client" "default" {
-  for_each     = { for i, v in local.iap_backends : i => v }
+  for_each     = { for i, v in local.iap_backends : i => v if v.create }
   display_name = each.value.display_name
   brand        = google_iap_brand.default[each.key].name
 }
 
 resource "google_iap_web_backend_service_iam_binding" "default" {
-  for_each            = { for i, v in local.iap_backends : i => v }
+  for_each            = { for i, v in local.iap_backends : i => v if v.create }
   project             = var.project_id
   web_backend_service = each.value.web_backend_service
   role                = each.value.role
