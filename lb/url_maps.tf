@@ -104,7 +104,7 @@ resource "google_compute_region_url_map" "https" {
     for_each = local.routing_rules
     content {
       name            = path_matcher.value.name
-      default_service = lookup(local.backend_ids, coalesce(path_matcher.value.backend, path_matcher.key), null)
+      default_service = coalesce(try(local.backend_ids[path_matcher.value.backend], null), local.default_service_id)
       dynamic "path_rule" {
         for_each = path_matcher.value.path_rules
         content {

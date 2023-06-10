@@ -5,7 +5,7 @@ locals {
   ssc_valid_years  = coalesce(var.ssc_valid_years, 5)
   ssc_ca_org       = coalesce(var.ssc_ca_org, "Honest Achmed's Used Cars and Certificates")
   certs_to_upload = local.upload_ssl_certs ? [for i, v in coalesce(var.ssl_certs, []) : {
-    name = coalesce(v.name, element(split(".", v.certificate), 0))
+    name = replace(coalesce(v.name, element(split(".", v.certificate), 0)), "_", "-")
     # If cert and key lengths are under 256 bytes, we assume they are the file names
     certificate = length(v.certificate) < 256 ? file("./${v.certificate}") : v.certificate
     private_key = length(v.private_key) < 256 ? file("./${v.private_key}") : v.private_key

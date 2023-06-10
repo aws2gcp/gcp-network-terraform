@@ -19,8 +19,8 @@ locals {
       peer_name                       = coalesce(tunnel.bgp_name, "vpn-${k}-${i}")
       ike_version                     = coalesce(tunnel.ike_version, var.defaults.vpn_ike_version, 2)
       ike_psk                         = tunnel.ike_psk
-      vpn_gateway_interface           = coalesce(tunnel.interface_index, i)
-      peer_external_gateway_interface = coalesce(tunnel.interface_index, i)
+      vpn_gateway_interface           = coalesce(tunnel.interface_index,  i % 2 == 0 ? 0 : 1)
+      peer_external_gateway_interface = coalesce(tunnel.peer_interface_index, i)
       advertised_ip_ranges            = coalesce(tunnel.advertised_ip_ranges, v.advertised_ip_ranges, [])
       advertised_groups               = coalesce(tunnel.advertised_groups, v.advertised_groups, [])
       advertised_priority             = coalesce(tunnel.advertised_priority, v.advertised_priority, 100)

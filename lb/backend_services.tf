@@ -1,18 +1,15 @@
 locals {
-  default_balancing_mode = local.type == "TCP" ? "CONNECTION" : "UTILIZATION"
-  hc_prefix              = "projects/${var.project_id}/${local.is_regional ? "regions/${var.region}" : "global"}/healthChecks"
-  backend_services = flatten([for i, v in local.backends : [merge(v, {
-    #name = v.name
-    description     = coalesce(v.description, "Backend Service '${v.name}'")
-    region          = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
-    protocol        = v.type == "rneg" ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.new_inegs[i]).protocol, null), "https")) : (local.is_tcp ? "TCP" : null)
-    port_name       = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${v.name}-${coalesce(v.port, 80)}") : null
-    timeout         = try(local.backends[i].type, "unknown") == "rneg" ? null : coalesce(v.timeout, var.backend_timeout, 30)
-    healthcheck_ids = v.healthchecks != null ? [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))] : []
+  balancing_mode = local.type == "TCP" ? "CONNECTION" : "UTILIZATION"
+  backend_services_0 = flatten([for i, v in local.backends : [merge(v, {
+    description = coalesce(v.description, "Backend Service '${v.name}'")
+    region      = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
+    protocol    = v.type == "rneg" ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.new_inegs[i]).protocol, null), "https")) : (local.is_tcp ? "TCP" : null)
+    port_name   = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${v.name}-${coalesce(v.port, 80)}") : null
+    timeout     = try(local.backends[i].type, "unknown") == "rneg" ? null : coalesce(v.timeout, var.backend_timeout, 30)
     groups = coalesce(v.groups,
       v.type == "igs" ? flatten([for ig_index, ig in local.instance_groups : ig.id if ig.backend_name == v.name]) : null,
-      #v.type == "rneg" ? flatten([for rneg_index, rneg in local.new_rnegs : google_compute_region_network_endpoint_group.default["${rneg.backend_name}-${rneg_index}"].id if rneg.backend_name == v.name]) : null,
-      #v.type == "ineg" ? flatten([for ineg_index, ineg in local.new_inegs : google_compute_global_network_endpoint_group.default["${ineg.backend_name}-${ineg_index}"].id if ineg.backend_name == v.name]) : null,
+      v.type == "rneg" ? flatten([for rneg_index, rneg in local.new_rnegs : google_compute_region_network_endpoint_group.default["${rneg.backend_name}-${rneg_index}"].id if rneg.backend_name == v.name]) : null,
+      v.type == "ineg" ? flatten([for ineg_index, ineg in local.new_inegs : google_compute_global_network_endpoint_group.default["${ineg.backend_name}-${ineg_index}"].id if ineg.backend_name == v.name]) : null,
       [] # This will result in 'has no backends configured' which is easier to troubleshoot than an ugly error
     )
     logging                     = coalesce(v.logging, var.backend_logging, false)
@@ -35,6 +32,13 @@ locals {
     custom_response_headers     = v.custom_response_headers
     use_iap                     = v.use_iap
   })] if contains(["igs", "rneg", "ineg"], try(local.backends[i].type, "unknown"))])
+  hc_prefix = "projects/${var.project_id}/${local.is_regional ? "regions/${local.region}" : "global"}/healthChecks"
+  backend_services = [for i, v in local.backend_services_0 : merge(v, {
+    healthcheck_ids = flatten(concat(
+      v.healthchecks != null ? [for hc in v.healthchecks : coalesce(hc.id, try("${local.hc_prefix}/${hc.name}", null))] : [],
+      v.healthcheck != null ? [try("${local.hc_prefix}/${v.healthcheck}", null)] : [],
+    ))
+  })]
 }
 
 # Global Backend Service
@@ -59,7 +63,7 @@ resource "google_compute_backend_service" "default" {
     content {
       group                 = backend.value
       capacity_scaler       = each.value.capacity_scaler
-      balancing_mode        = each.value.type == "ineg" ? null : local.default_balancing_mode
+      balancing_mode        = each.value.type == "ineg" ? null : local.balancing_mode
       max_rate_per_instance = each.value.type == "igs" ? each.value.max_rate_per_instance : null
       max_utilization       = each.value.type == "igs" ? each.value.max_utilization : null
       max_connections       = each.value.type == "igs" ? each.value.max_connections : null
@@ -106,8 +110,12 @@ resource "google_compute_backend_service" "default" {
       }
     }
   }
-  depends_on = [google_compute_instance_group.default, google_compute_region_network_endpoint_group.default]
-  provider   = google-beta
+  depends_on = [
+    google_compute_instance_group.default,
+    google_compute_region_network_endpoint_group.default,
+    google_compute_health_check.default,
+  ]
+  provider = google-beta
 }
 
 # Regional Backend Service
@@ -130,7 +138,7 @@ resource "google_compute_region_backend_service" "default" {
     content {
       group                 = backend.value
       capacity_scaler       = each.value.capacity_scaler
-      balancing_mode        = each.value.type == "ineg" ? null : local.default_balancing_mode
+      balancing_mode        = each.value.type == "ineg" ? null : local.balancing_mode
       max_rate_per_instance = each.value.type == "igs" ? each.value.max_rate_per_instance : null
       max_utilization       = each.value.type == "igs" ? each.value.max_utilization : null
       max_connections       = each.value.type == "igs" ? each.value.max_connections : null
@@ -149,6 +157,10 @@ resource "google_compute_region_backend_service" "default" {
       minimum_ring_size = 1
     }
   }
-  region     = each.value.region
-  depends_on = [google_compute_instance_group.default, google_compute_region_network_endpoint_group.default]
+  region = each.value.region
+  depends_on = [
+    google_compute_instance_group.default,
+    google_compute_region_network_endpoint_group.default,
+    google_compute_region_health_check.default,
+  ]
 }

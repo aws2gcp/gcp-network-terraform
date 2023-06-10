@@ -222,6 +222,30 @@ variable "create" {
   type    = bool
   default = true
 }
+
+variable "healthchecks" {
+  type = list(object({
+    create              = optional(bool, true)
+    project_id          = optional(string)
+    name                = optional(string)
+    description         = optional(string)
+    region              = optional(string)
+    port                = optional(number, 80)
+    protocol            = optional(string)
+    interval            = optional(number, 10)
+    timeout             = optional(number, 5)
+    healthy_threshold   = optional(number, 2)
+    unhealthy_threshold = optional(number, 2)
+    request_path        = optional(string)
+    response            = optional(string)
+    host                = optional(string)
+    legacy              = optional(bool)
+    logging             = optional(bool)
+    proxy_header        = optional(string)
+  }))
+  default = []
+}
+
 variable "psc" {
   description = "Parameters to publish Internal forwarding rule using PSC"
   type = object({
@@ -277,6 +301,7 @@ variable "backends" {
     affinity_type      = optional(string)
     locality_lb_policy = optional(string)
     cloudarmor_policy  = optional(string)
+    healthcheck        = optional(string)
     healthcheck_names  = optional(list(string))
     healthchecks = optional(list(object({
       id     = optional(string)

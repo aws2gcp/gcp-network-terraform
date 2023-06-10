@@ -12,3 +12,7 @@ override.tf.json
 crash.log
 .idea/
 .DS_Store
+*.key
+*.pem
+*.rsa
+*.p12

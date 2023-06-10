@@ -9,7 +9,7 @@ locals {
       bfd_min_transmit_interval = coalesce(v.bfd_min_transmit_interval, 1000)
       bfd_min_receive_interval  = coalesce(v.bfd_min_receive_interval, 1000)
       bfd_multiplier            = coalesce(v.bfd_multiplier, 5)
-      enable                    = coalesce(v.enable, true)
+      enable                    = lookup(v, "enable", true)
     })
   ]
 }
