@@ -1,5 +1,6 @@
 locals {
   upload_ssl_certs = length(coalesce(var.ssl_certs, [])) > 0 ? true : false
+  ssl_cert_names   = coalesce(var.ssl_cert_names, [])
   use_ssc          = local.is_http ? coalesce(var.use_ssc, !local.upload_ssl_certs && var.ssl_cert_names == null ? true : false) : false
   use_gmc          = local.is_http && local.is_global ? coalesce(var.use_gmc, false) : false
   ssc_valid_years  = coalesce(var.ssc_valid_years, 5)
@@ -10,7 +11,7 @@ locals {
     certificate = length(v.certificate) < 256 ? file("./${v.certificate}") : v.certificate
     private_key = length(v.private_key) < 256 ? file("./${v.private_key}") : v.private_key
     description = coalesce(v.description, "Uploaded via Terraform")
-  }] : [{ name = "self-signed", description = "Self-Signed certificate; intended for TEMPORARY use only" }]
+  }] : length(local.ssl_cert_names) > 0 ? [] : [{ name = "self-signed", description = "For temporary use only" }]
 }
 
 # For self-signed, create a private key

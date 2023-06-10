@@ -1,4 +1,5 @@
 locals {
+  # First round
   healthchecks_0 = [for i, v in var.healthchecks : merge(v, {
     create       = coalesce(v.create, true)
     project_id   = coalesce(v.project_id, var.project_id)
@@ -6,18 +7,20 @@ locals {
     region       = local.is_regional ? coalesce(v.region, var.region) : null
     is_regional  = local.is_regional
     is_global    = local.is_global
-    protocol     = upper(coalesce(v.protocol, "tcp"))
+    protocol     = upper(coalesce(v.protocol, v.request_path != null ? "http" : "tcp"))
     proxy_header = coalesce(v.proxy_header, "NONE")
   })]
+  # Set booleans that show type
   healthchecks_1 = [for i, v in local.healthchecks_0 : merge(v, {
     is_tcp   = v.protocol == "TCP" ? true : false
     is_http  = v.protocol == "HTTP" ? true : false
     is_https = v.protocol == "HTTPS" ? true : false
     is_ssl   = v.protocol == "SSL" ? true : false
   })]
+  # Final round
   healthchecks = [for i, v in local.healthchecks_1 : merge(v, {
     request_path = v.is_http || v.is_https ? coalesce(v.request_path, "/") : null
-    response     = v.is_http || v.is_https ? coalesce(v.response, "OK") : null
+    response     = v.is_http || v.is_https ? v.response : null
   })]
 }
 
