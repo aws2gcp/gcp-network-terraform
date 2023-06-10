@@ -1,9 +1,9 @@
 locals {
-  subnets_0 = { for k, v in var.subnets : k => merge(v,
+  subnets_0 = [for i, v in var.subnets : merge(v,
     {
       create               = coalesce(v.create, true)
       project_id           = coalesce(v.project_id, var.project_id)
-      name                 = coalesce(v.name, k)
+      name                 = coalesce(v.name, "subnet-${i}")
       network_name         = google_compute_network.default.name
       purpose              = upper(coalesce(v.purpose, "PRIVATE"))
       region               = coalesce(v.region, var.region)
@@ -17,17 +17,16 @@ locals {
       shared_accounts      = coalesce(v.shared_accounts, [])
       secondary_ranges     = [for k, v in coalesce(v.secondary_ranges, {}) : { name = k, range = v.range }]
     }
-  ) }
-  subnets = {
-    for k, v in local.subnets_0 : k => merge(v, {
-      is_private    = v.purpose == "PRIVATE" ? true : false
-      is_proxy_only = contains(["INTERNAL_HTTPS_LOAD_BALANCER", "REGIONAL_MANAGED_PROXY"], v.purpose) ? true : false
-    })
-  }
+  )]
+  subnets = [for i, v in local.subnets_0 : merge(v, {
+    key           = "${v.project_id}-${v.region}-${v.name}"
+    is_private    = v.purpose == "PRIVATE" ? true : false
+    is_proxy_only = contains(["INTERNAL_HTTPS_LOAD_BALANCER", "REGIONAL_MANAGED_PROXY"], v.purpose) ? true : false
+  })]
 }
 
 resource "google_compute_subnetwork" "default" {
-  for_each                 = { for k, v in local.subnets : k => v if v.create }
+  for_each                 = { for k, v in local.subnets : v.key => v if v.create }
   project                  = var.project_id
   network                  = each.value.network_name
   name                     = each.value.name

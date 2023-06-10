@@ -1,6 +1,6 @@
 
 
-# Firewall rules
+/* Firewall rules
 module "firewall_rules" {
   source       = "../firewall-rule/"
   for_each     = var.firewall_rules
@@ -15,3 +15,4 @@ module "firewall_rules" {
   action       = each.value.action
 }
 
+*/

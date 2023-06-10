@@ -1,9 +1,10 @@
 # Allocate Static IP for each Cloud NAT, if required
 locals {
-  cloud_router_names = { for k, v in var.cloud_routers : k => k }
-  cloud_nats_1 = { for k, v in var.cloud_nats : k => merge(v, {
+  cloud_router_names = { for i, v in var.cloud_routers : v.name => v.name }
+  cloud_nats_0 = [for i, v in var.cloud_nats : merge(v, {
+    create                 = coalesce(v.create, true)
     project_id             = coalesce(v.project_id, var.project_id)
-    name                   = coalesce(v.name, k)
+    name                   = coalesce(v.name, "nat-${i}")
     network_name           = coalesce(var.network_name, "default")
     region                 = coalesce(v.region, var.region)
     router                 = coalesce(v.cloud_router_name, try(local.cloud_router_names[v.cloud_router], null), "unknown")
@@ -20,19 +21,22 @@ locals {
     tcp_time_wait_timeout  = coalesce(v.tcp_time_wait_timeout, var.defaults.cloud_nat_tcp_time_wait_timeout)
     tcp_trans_idle_timeout = coalesce(v.tcp_transitory_idle_timeout, var.defaults.cloud_nat_tcp_transitory_idle_timeout)
     icmp_idle_timeout      = coalesce(v.icmp_idle_timeout, var.defaults.cloud_nat_icmp_idle_timeout)
-  }) }
-  nat_addresses = { for k, v in local.cloud_nats_1 : k => [
-    for i in range(v.num_static_ips) : {
+  })]
+  cloud_nats_1 = [for i, v in local.cloud_nats_0 : merge(v, {
+    key = "${v.project_id}-${v.region}-${v.name}"
+  })]
+  nat_addresses = { for i, v in local.cloud_nats_1 : v.key => [
+    for a in range(v.num_static_ips) : {
       name        = null
       description = null
       address     = null
     } if v.num_static_ips > 0
   ] }
-  cloud_nat_addresses = { for k, v in local.cloud_nats_1 : k => [
-    for i, nat_address in(length(v.static_ips) > 0 ? v.static_ips : local.nat_addresses[k]) : {
+  cloud_nat_addresses = { for i, v in local.cloud_nats_1 : v.key => [
+    for a, nat_address in(length(v.static_ips) > 0 ? v.static_ips : local.nat_addresses[v.key]) : {
       project_id  = coalesce(v.project_id, var.project_id)
       region      = coalesce(v.region, var.region)
-      name        = coalesce(nat_address.name, "cloudnat-${v.network_name}-${v.region}-${i}")
+      name        = coalesce(nat_address.name, "cloudnat-${v.network_name}-${v.region}-${a}")
       description = coalesce(nat_address.description, "External Static IP for Cloud NAT")
       address     = nat_address.address
     }
@@ -60,26 +64,23 @@ resource "google_compute_address" "cloud_nat" {
 
 # Cloud NATs (NAT Gateways)
 locals {
-  cloud_nats_2 = {
-    for k, v in local.cloud_nats_1 : k => merge(v, {
-      nat_ip_allocate_option = length(v.static_ips) > 0 || v.num_static_ips > 0 ? "MANUAL_ONLY" : "AUTO_ONLY"
-    })
-  }
   log_filter = {
     "errors"       = "ERRORS_ONLY"
     "translations" = "TRANSLATIONS_ONLY"
     "all"          = "ALL"
   }
-  cloud_nats = {
-    for k, v in local.cloud_nats_2 : k => merge(v, {
-      logging                 = v.log_type != "none" ? true : false
-      log_filter              = lookup(local.log_filter, v.log_type, "ERRORS_ONLY")
-      source_ip_ranges_to_nat = length(v.subnets) > 0 ? "LIST_OF_SUBNETWORKS" : "ALL_SUBNETWORKS_ALL_IP_RANGES"
-    })
-  }
+  cloud_nats_2 = [for i, v in local.cloud_nats_1 : merge(v, {
+    nat_ip_allocate_option = length(v.static_ips) > 0 || v.num_static_ips > 0 ? "MANUAL_ONLY" : "AUTO_ONLY"
+  })]
+  cloud_nats = [for i, v in local.cloud_nats_2 : merge(v, {
+    logging                 = v.log_type != "none" ? true : false
+    log_filter              = lookup(local.log_filter, v.log_type, "ERRORS_ONLY")
+    source_ip_ranges_to_nat = length(v.subnets) > 0 ? "LIST_OF_SUBNETWORKS" : "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  })]
 }
+
 resource "google_compute_router_nat" "default" {
-  for_each                           = local.cloud_nats
+  for_each                           = { for k, v in local.cloud_nats : v.key => v if v.create }
   project                            = var.project_id
   name                               = each.value.name
   router                             = each.value.router

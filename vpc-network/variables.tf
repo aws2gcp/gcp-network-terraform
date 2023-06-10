@@ -62,7 +62,7 @@ variable "subnets" {
 }
 variable "routes" {
   description = "Static Routes"
-  type = map(object({
+  type = list(object({
     project_id    = optional(string)
     name          = optional(string)
     description   = optional(string)
@@ -74,11 +74,11 @@ variable "routes" {
     next_hop_zone = optional(string)
     create        = optional(bool)
   }))
-  default = {}
+  default = []
 }
 variable "peerings" {
   description = "VPC Peering Connections"
-  type = map(object({
+  type = list(object({
     project_id                          = optional(string)
     name                                = optional(string)
     peer_project_id                     = optional(string)
@@ -90,11 +90,11 @@ variable "peerings" {
     export_subnet_routes_with_public_ip = optional(bool)
     create                              = optional(bool)
   }))
-  default = {}
+  default = []
 }
 variable "cloud_routers" {
   description = "Cloud Routers attached to this VPC Network"
-  type = map(object({
+  type = list(object({
     project_id             = optional(string)
     name                   = optional(string)
     description            = optional(string)
@@ -109,11 +109,11 @@ variable "cloud_routers" {
     })))
     create = optional(bool)
   }))
-  default = {}
+  default = []
 }
 variable "cloud_nats" {
   description = "Cloud NATs used by this VPC Network"
-  type = map(object({
+  type = list(object({
     project_id        = optional(string)
     name              = optional(string)
     region            = optional(string)
@@ -138,8 +138,9 @@ variable "cloud_nats" {
     icmp_idle_timeout            = optional(number)
     create                       = optional(bool)
   }))
-  default = {}
+  default = []
 }
+/*
 variable "firewall_rules" {
   description = "Firewall Rules applied to this VPC Network"
   type = map(object({
@@ -158,20 +159,21 @@ variable "firewall_rules" {
   }))
   default = {}
 }
+*/
 variable "ip_ranges" {
   description = "Internal IP address ranges for private service connections"
-  type = map(object({
+  type = list(object({
     project_id  = optional(string)
     name        = optional(string)
     description = optional(string)
     ip_range    = string
     create      = optional(bool)
   }))
-  default = {}
+  default = []
 }
 variable "service_connections" {
   description = "Private Service Connections"
-  type = map(object({
+  type = list(object({
     name                 = optional(string)
     service              = optional(string)
     ip_ranges            = list(string)
@@ -179,20 +181,22 @@ variable "service_connections" {
     export_custom_routes = optional(bool)
     create               = optional(bool)
   }))
-  default = {}
+  default = []
 }
 variable "private_service_connections" {
   description = "Private Service Connections"
-  type = map(object({
+  type = list(object({
+    name       = optional(string)
     target     = string
     ip_address = optional(string)
     create     = optional(bool)
   }))
-  default = {}
+  default = []
 }
 variable "private_service_connects" {
   description = "Private Service Connects"
-  type = map(object({
+  type = list(object({
+    name          = optional(string)
     target        = string
     endpoint_name = optional(string)
     subnet_name   = optional(string)
@@ -200,11 +204,11 @@ variable "private_service_connects" {
     ip_address    = optional(string)
     create        = optional(bool)
   }))
-  default = {}
+  default = []
 }
 variable "vpc_access_connectors" {
   description = "Serverless VPC Access Connectors"
-  type = map(object({
+  type = list(object({
     project_id         = optional(string)
     name               = optional(string)
     region             = optional(string)
@@ -219,7 +223,7 @@ variable "vpc_access_connectors" {
     machine_type       = optional(string)
     create             = optional(bool)
   }))
-  default = {}
+  default = []
 }
 variable "defaults" {
   type = object({

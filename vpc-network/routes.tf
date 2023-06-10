@@ -1,14 +1,14 @@
 locals {
-  routes = { for k, v in var.routes : k => merge(v,
+  routes_0 = [for i, v in var.routes : merge(v,
     {
       project_id    = coalesce(v.project_id, var.project_id)
       next_hop_type = can(regex("^[1-2]", v.next_hop)) ? "ip" : "instance"
     }
-  ) if coalesce(v.create, true) }
-  routes_list = flatten([
-    for k, v in local.routes : [
-      for i, dest_range in coalesce(v.dest_ranges, []) : merge(v, {
-        key        = "${k}-${i}"
+  ) if lookup(v, "create", true)]
+  routes = flatten([
+    for i, v in local.routes_0 : [
+      for r, dest_range in coalesce(v.dest_ranges, []) : merge(v, {
+        key        = "${i}-${r}"
         dest_range = dest_range
       })
     ]
@@ -18,7 +18,7 @@ locals {
 
 # Static Routes
 resource "google_compute_route" "default" {
-  for_each               = { for route in local.routes_list : "${route.key}" => route }
+  for_each               = { for i, v in local.routes : "${v.key}" => v if v.create }
   project                = var.project_id
   network                = google_compute_network.default.name
   name                   = each.key

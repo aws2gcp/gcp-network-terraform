@@ -1,8 +1,8 @@
 locals {
-  ip_ranges = { for k, v in var.ip_ranges : k => {
+  ip_ranges_0 = [for i, v in var.ip_ranges : {
     create        = coalesce(v.create, true)
     project_id    = coalesce(v.project_id, var.project_id)
-    name          = coalesce(v.name, k)
+    name          = coalesce(v.name, "range-${i}")
     description   = v.description
     ip_version    = null
     address       = element(split("/", v.ip_range), 0)
@@ -10,11 +10,14 @@ locals {
     address_type  = "INTERNAL"
     purpose       = "VPC_PEERING"
     network_name  = google_compute_network.default.name
-  } if coalesce(v.create, true) }
+  }]
+  ip_ranges = [for i, v in local.ip_ranges_0 : merge(v, {
+    key = "${v.project_id}-${v.region}-${v.name}"
+  })]
 }
 
 resource "google_compute_global_address" "default" {
-  for_each      = { for k, v in local.ip_ranges : k => v if v.create }
+  for_each      = { for k, v in local.ip_ranges : v.key => v if v.create }
   project       = var.project_id
   name          = each.value.name
   description   = each.value.description
