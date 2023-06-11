@@ -15,7 +15,7 @@ variable "region" {
 }
 variable "cloud_routers" {
   description = "Cloud Routers"
-  type = map(object({
+  type = list(object({
     create                 = optional(bool)
     project_id             = optional(string)
     name                   = optional(string)
@@ -30,16 +30,16 @@ variable "cloud_routers" {
       description = optional(string)
     })))
   }))
-  default = {}
+  default = []
 }
 variable "interconnects" {
   description = "Dedicated and Partner Interconnects"
-  type = map(object({
+  type = list(object({
     create              = optional(bool)
     type                = string
     project_id          = optional(string)
     region              = optional(string)
-    cloud_router_name   = optional(string)
+    cloud_router        = optional(string)
     cloud_router_ip     = optional(string)
     bgp_peer_ip         = optional(string)
     peer_bgp_asn        = optional(number)
@@ -72,48 +72,43 @@ variable "interconnects" {
       })))
     }))
   }))
-  default = {}
+  default = []
 }
 variable "cloud_vpn_gateways" {
-  description = "Map of GCP Cloud VPN Gateways"
-  type = map(object({
+  description = "GCP Cloud VPN Gateways"
+  type = list(object({
     create       = optional(bool)
     project_id   = optional(string)
     name         = optional(string)
     network_name = optional(string)
     region       = optional(string)
   }))
-  default = {}
+  default = []
 }
 variable "peer_vpn_gateways" {
   description = "Map of Peer (External) VPN Gateways"
-  type = map(object({
+  type = list(object({
     create       = optional(bool)
     project_id   = optional(string)
     name         = optional(string)
     description  = optional(string)
     ip_addresses = optional(list(string))
     labels       = optional(map(string))
-    description  = optional(string)
-    ip_addresses = list(string)
   }))
-  default = {}
+  default = []
 }
 variable "vpns" {
   description = "Map of HA VPNs"
-  type = map(object({
+  type = list(object({
     project_id                      = optional(string)
     name                            = optional(string)
     description                     = optional(string)
     region                          = optional(string)
     cloud_router                    = optional(string)
-    cloud_router_name               = optional(string)
     cloud_vpn_gateway               = optional(string)
-    cloud_vpn_gateway_name          = optional(string)
     peer_vpn_gateway                = optional(string)
-    peer_vpn_gateway_name           = optional(string)
     peer_gcp_vpn_gateway_project_id = optional(string)
-    peer_gcp_vpn_gateway_name       = optional(string)
+    peer_gcp_vpn_gateway            = optional(string)
     peer_bgp_asn                    = optional(number)
     advertised_priority             = optional(number)
     advertised_groups               = optional(list(string))
@@ -145,7 +140,7 @@ variable "vpns" {
       create     = optional(bool)
     }))
   }))
-  default = {}
+  default = []
 }
 variable "defaults" {
   type = object({

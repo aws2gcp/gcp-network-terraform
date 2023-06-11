@@ -1,17 +1,15 @@
 locals {
-  router_peers = [
-    for k, v in local.router_interfaces : merge(v, {
-      create                    = coalesce(v.create, true)
-      advertise_mode            = length(coalesce(v.advertised_ip_ranges, [])) > 0 ? "CUSTOM" : "DEFAULT"
-      advertised_ip_ranges      = coalesce(v.advertised_ip_ranges, [])
-      peer_asn                  = coalesce(v.peer_asn, v.peer_is_gcp ? 64512 : 65000)
-      enable_bfd                = coalesce(v.enable_bfd, false)
-      bfd_min_transmit_interval = coalesce(v.bfd_min_transmit_interval, 1000)
-      bfd_min_receive_interval  = coalesce(v.bfd_min_receive_interval, 1000)
-      bfd_multiplier            = coalesce(v.bfd_multiplier, 5)
-      enable                    = lookup(v, "enable", true)
-    })
-  ]
+  router_peers = [for i, v in local.router_interfaces : merge(v, {
+    create                    = coalesce(v.create, true)
+    advertise_mode            = length(coalesce(v.advertised_ip_ranges, [])) > 0 ? "CUSTOM" : "DEFAULT"
+    advertised_ip_ranges      = coalesce(v.advertised_ip_ranges, [])
+    peer_asn                  = coalesce(v.peer_asn, v.peer_is_gcp ? 64512 : 65000)
+    enable_bfd                = coalesce(v.enable_bfd, false)
+    bfd_min_transmit_interval = coalesce(v.bfd_min_transmit_interval, 1000)
+    bfd_min_receive_interval  = coalesce(v.bfd_min_receive_interval, 1000)
+    bfd_multiplier            = coalesce(v.bfd_multiplier, 5)
+    enable                    = lookup(v, "enable", true)
+  })]
 }
 
 resource "google_compute_router_peer" "default" {

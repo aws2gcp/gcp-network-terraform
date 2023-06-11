@@ -1,13 +1,12 @@
 locals {
-  interconnect_attachments = flatten([
-    for k, v in var.interconnects : [
-      for i, circuit in v.ciruits : {
+  interconnect_attachments_0 = flatten([
+    for i, v in var.interconnects : [
+      for c, circuit in v.ciruits : {
         create            = coalesce(v.create, true)
         is_interconnect   = true
         is_vpn            = false
-        key               = "interconnect-${k}-{i}"
         project_id        = coalesce(v.project_id, var.project_id)
-        name              = coalesce(v.name, k)
+        name              = coalesce(v.name, "interconnect-${i}-${c}")
         description       = v.description
         region            = coalesce(v.region, var.region)
         interconnect_type = upper(coalesce(v.type, "PARTNER"))
@@ -17,11 +16,16 @@ locals {
       }
     ]
   ])
+  interconnect_attachments = [
+    for i, v in local.interconnect_attachments_0 : merge(v, {
+      key = "${v.project_id}-${v.region}-${v.name}"
+    })
+  ]
 }
 
 # Interconnect Attachment
 resource "google_compute_interconnect_attachment" "default" {
-  for_each                 = { for i, v in local.interconnect_attachments : "${v.key}" => v if v.create }
+  for_each                 = { for i, v in local.interconnect_attachments : v.key => v if v.create }
   project                  = each.value.project_id
   name                     = each.value.name
   description              = each.value.description
