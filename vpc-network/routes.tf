@@ -1,10 +1,9 @@
 locals {
-  routes_0 = [for i, v in var.routes : merge(v,
-    {
-      project_id    = coalesce(v.project_id, var.project_id)
-      next_hop_type = can(regex("^[1-2]", v.next_hop)) ? "ip" : "instance"
-    }
-  ) if lookup(v, "create", true)]
+  routes_0 = [for i, v in var.routes : merge(v, {
+    create        = coalesce(v.create, true)
+    project_id    = coalesce(v.project_id, var.project_id)
+    next_hop_type = can(regex("^[1-2]", v.next_hop)) ? "ip" : "instance"
+  })]
   routes = flatten([
     for i, v in local.routes_0 : [
       for r, dest_range in coalesce(v.dest_ranges, []) : merge(v, {

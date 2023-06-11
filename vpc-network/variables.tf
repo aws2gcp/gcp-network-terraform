@@ -53,7 +53,8 @@ variable "subnets" {
     log_sampling_rate        = optional(number)
     attached_projects        = optional(list(string))
     shared_accounts          = optional(list(string))
-    secondary_ranges = optional(map(object({
+    secondary_ranges = optional(list(object({
+      name  = optional(string)
       range = string
     })))
     create = optional(bool)

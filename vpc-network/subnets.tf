@@ -15,7 +15,10 @@ locals {
       stack_type           = upper(coalesce(v.stack_type, var.defaults.subnet_stack_type))
       attached_projects    = coalesce(v.attached_projects, [])
       shared_accounts      = coalesce(v.shared_accounts, [])
-      secondary_ranges     = [for k, v in coalesce(v.secondary_ranges, {}) : { name = k, range = v.range }]
+      secondary_ranges = [for i, v in coalesce(v.secondary_ranges, []) : {
+        name  = coalesce(v.name, "secondary-range-${i}")
+        range = v.range
+      }]
     }
   )]
   subnets = [for i, v in local.subnets_0 : merge(v, {
