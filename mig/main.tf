@@ -21,7 +21,7 @@ locals {
     enable-guest-attributes = "true"
   }
   metadata = merge(local.default_metadata, var.metadata, var.ssh_key != null ? { instanceSSHKey = var.ssh_key } : {})
-  labels = coalesce(var.labels, {})
+  labels   = coalesce(var.labels, {})
 }
 
 # Instance Template
