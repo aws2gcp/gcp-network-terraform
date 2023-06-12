@@ -1,6 +1,6 @@
 locals {
   router_interfaces = concat(local.interconnect_attachments, local.vpn_tunnels)
-  vpn_tunnel_names  = { for i, v in local.vpn_tunnels : "${v.key}" => v.name }
+  vpn_tunnel_names  = { for i, v in local.vpn_tunnels : v.key => v.name }
 }
 
 # Cloud Router Interface

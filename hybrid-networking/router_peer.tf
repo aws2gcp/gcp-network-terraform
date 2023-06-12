@@ -8,12 +8,12 @@ locals {
     bfd_min_transmit_interval = coalesce(v.bfd_min_transmit_interval, 1000)
     bfd_min_receive_interval  = coalesce(v.bfd_min_receive_interval, 1000)
     bfd_multiplier            = coalesce(v.bfd_multiplier, 5)
-    enable                    = lookup(v, "enable", true)
+    enable                    = coalesce(v.enable, true)
   })]
 }
 
 resource "google_compute_router_peer" "default" {
-  for_each                  = { for i, v in local.router_peers : "${v.key}" => v if v.create }
+  for_each                  = { for i, v in local.router_peers : v.key => v if v.create }
   project                   = each.value.project_id
   name                      = each.value.peer_name
   region                    = each.value.region

@@ -37,7 +37,7 @@ variable "service_project_ids" {
 }
 variable "subnets" {
   description = "Subnets in this VPC Network"
-  type = map(object({
+  type = list(object({
     create                   = optional(bool)
     project_id               = optional(string)
     name                     = optional(string)
@@ -59,7 +59,7 @@ variable "subnets" {
     })))
     create = optional(bool)
   }))
-  default = {}
+  default = []
 }
 variable "routes" {
   description = "Static Routes"
@@ -175,6 +175,7 @@ variable "ip_ranges" {
 variable "service_connections" {
   description = "Private Service Connections"
   type = list(object({
+    project_id           = optional(string)
     name                 = optional(string)
     service              = optional(string)
     ip_ranges            = list(string)

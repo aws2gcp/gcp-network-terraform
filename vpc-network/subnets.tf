@@ -22,9 +22,10 @@ locals {
     }
   )]
   subnets = [for i, v in local.subnets_0 : merge(v, {
-    key           = "${v.project_id}-${v.region}-${v.name}"
-    is_private    = v.purpose == "PRIVATE" ? true : false
-    is_proxy_only = contains(["INTERNAL_HTTPS_LOAD_BALANCER", "REGIONAL_MANAGED_PROXY"], v.purpose) ? true : false
+    key                  = "${v.project_id}-${v.region}-${v.name}"
+    is_private           = v.purpose == "PRIVATE" ? true : false
+    is_proxy_only        = contains(["INTERNAL_HTTPS_LOAD_BALANCER", "REGIONAL_MANAGED_PROXY"], v.purpose) ? true : false
+    has_secondary_ranges = length(v.secondary_ranges) > 0 ? true : false
   })]
 }
 
@@ -49,6 +50,7 @@ resource "google_compute_subnetwork" "default" {
       metadata_fields      = []
     }
   }
+  /* https://github.com/hashicorp/terraform-plugin-sdk/issues/161
   dynamic "secondary_ip_range" {
     for_each = each.value.secondary_ranges
     content {
@@ -56,5 +58,10 @@ resource "google_compute_subnetwork" "default" {
       ip_cidr_range = secondary_ip_range.value.range
     }
   }
+  */
+  secondary_ip_range = [for i, v in each.value.secondary_ranges : {
+    range_name    = v.name
+    ip_cidr_range = v.range
+  }]
 }
 

@@ -1,5 +1,5 @@
 locals {
-  cloud_routers_0 = [for i, v in var.cloud_routers : {
+  cloud_routers_0 = [for i, v in var.cloud_routers : merge(v, {
     create                 = coalesce(v.create, true)
     project_id             = coalesce(v.project_id, var.project_id)
     description            = coalesce(v.description, "Managed by Terraform")
@@ -9,7 +9,7 @@ locals {
     bgp_keepalive_interval = coalesce(v.bgp_keepalive_interval, 20)
     advertised_groups      = coalesce(v.advertised_groups, [])
     advertised_ip_ranges   = coalesce(v.advertised_ip_ranges, [])
-  }]
+  })]
   cloud_routers_1 = [for i, v in local.cloud_routers_0 : merge(v, {
     name           = coalesce(v.name, "rtr-${v.network_name}-${i}")
     advertise_mode = length(v.advertised_ip_ranges) > 0 ? "CUSTOM" : "DEFAULT"

@@ -2,7 +2,7 @@ locals {
   ip_ranges_0 = [for i, v in var.ip_ranges : {
     create        = coalesce(v.create, true)
     project_id    = coalesce(v.project_id, var.project_id)
-    name          = coalesce(v.name, "range-${i}")
+    name          = coalesce(v.name, "ip-range-${i}")
     description   = v.description
     ip_version    = null
     address       = element(split("/", v.ip_range), 0)
@@ -12,7 +12,7 @@ locals {
     network_name  = google_compute_network.default.name
   }]
   ip_ranges = [for i, v in local.ip_ranges_0 : merge(v, {
-    key = "${v.project_id}-${v.region}-${v.name}"
+    key = "${v.project_id}-${v.network_name}-${v.name}"
   })]
 }
 
