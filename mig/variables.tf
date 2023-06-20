@@ -39,6 +39,10 @@ variable "target_size" {
   type    = number
   default = null
 }
+variable "distribution_policy_target_shape" {
+  type    = string
+  default = "EVEN"
+}
 variable "machine_type" {
   type    = string
   default = "e2-small"

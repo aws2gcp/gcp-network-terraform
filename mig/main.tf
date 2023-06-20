@@ -88,14 +88,15 @@ locals {
 
 # Managed Instance Group
 resource "google_compute_region_instance_group_manager" "default" {
-  count                     = local.create ? 1 : 0
-  base_instance_name        = coalesce(var.base_instance_name, var.name_prefix)
-  project                   = var.project_id
-  name                      = "${var.name_prefix}-${var.region}"
-  region                    = var.region
-  distribution_policy_zones = local.zones
-  target_size               = local.autoscaling ? null : coalesce(var.target_size, 2)
-  wait_for_instances        = false
+  count                            = local.create ? 1 : 0
+  base_instance_name               = coalesce(var.base_instance_name, var.name_prefix)
+  project                          = var.project_id
+  name                             = "${var.name_prefix}-${var.region}"
+  region                           = var.region
+  distribution_policy_target_shape = upper(coalesce(var.distribution_policy_target_shape, "even"))
+  distribution_policy_zones        = local.zones
+  target_size                      = local.autoscaling ? null : coalesce(var.target_size, 2)
+  wait_for_instances               = false
   version {
     name              = "${var.name_prefix}-${var.region}-0"
     instance_template = local.create_instance_template ? one(google_compute_instance_template.default).id : var.instance_template_name
