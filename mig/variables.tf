@@ -143,6 +143,10 @@ variable "update_type" {
   type    = string
   default = null
 }
+variable "instance_redistribution_type" {
+  type    = string
+  default = null
+}
 variable "update_minimal_action" {
   type    = string
   default = null
