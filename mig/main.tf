@@ -110,7 +110,7 @@ resource "google_compute_region_instance_group_manager" "default" {
   }
   update_policy {
     type                           = upper(coalesce(var.update_type, "opportunistic"))
-    instance_redistribution_type = upper(coalesce(var.instance_redistribution_type, "proactive"))
+    instance_redistribution_type   = upper(coalesce(var.instance_redistribution_type, "proactive"))
     minimal_action                 = upper(coalesce(var.update_minimal_action, "restart"))
     most_disruptive_allowed_action = upper(coalesce(var.update_most_disruptive_action, "replace"))
     replacement_method             = upper(coalesce(var.update_replacement_method, "substitute"))
