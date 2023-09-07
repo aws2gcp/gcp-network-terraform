@@ -4,8 +4,9 @@ locals {
     description = coalesce(v.description, "Backend Service '${v.name}'")
     region      = local.is_regional ? coalesce(v.region, local.region) : null # Set region, if required
     protocol    = v.type == "rneg" ? null : local.is_http ? upper(coalesce(v.protocol, try(one(local.new_inegs[i]).protocol, null), "https")) : (local.is_tcp ? "TCP" : null)
-    port_name   = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${v.name}-${coalesce(v.port, 80)}") : null
-    timeout     = try(local.backends[i].type, "unknown") == "rneg" ? null : coalesce(v.timeout, var.backend_timeout, 30)
+    #port_name   = local.is_http ? coalesce(v.port, 80) == 80 ? "http" : coalesce(v.port_name, "${v.name}-${coalesce(v.port, 80)}") : null
+    port_name = local.is_http ? coalesce(v.port_name, "${v.name}-${coalesce(v.port, 80)}") : null
+    timeout   = try(local.backends[i].type, "unknown") == "rneg" ? null : coalesce(v.timeout, var.backend_timeout, 30)
     groups = coalesce(v.groups,
       v.type == "igs" ? flatten([for ig_index, ig in local.instance_groups : ig.id if ig.backend_name == v.name]) : null,
       v.type == "rneg" ? flatten([for rneg_index, rneg in local.new_rnegs : google_compute_region_network_endpoint_group.default["${rneg.backend_name}-${rneg_index}"].id if rneg.backend_name == v.name]) : null,
@@ -115,7 +116,7 @@ resource "google_compute_backend_service" "default" {
     google_compute_region_network_endpoint_group.default,
     google_compute_health_check.default,
   ]
-  provider = google-beta
+  #provider = google-beta
 }
 
 # Regional Backend Service

@@ -40,7 +40,7 @@ locals {
   named_ports = flatten([for i, v in local.instance_groups : {
     ig_id        = v.id
     key          = "${v.backend_name}-${v.zone}-${v.name}-${v.port_number}"
-    name         = coalesce(v.port_name, v.port_number == 80 ? "http" : "${v.backend_name}-${v.port_number}")
+    name         = coalesce(v.port_name, "${v.backend_name}-${v.port_number}")
     port         = coalesce(v.port_number, local.http_port)
     backend_name = v.backend_name
     new_umig     = contains([for new_umig in local.new_umigs : new_umig.id], v.id) ? true : false
