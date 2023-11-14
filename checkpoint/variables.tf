@@ -29,7 +29,7 @@ variable "install_type" {
   default = null
   validation {
     condition     = var.install_type != null ? var.install_type == "Cluster" || var.install_type == "Gateway only" || var.install_type == "AutoScale" || var.install_type == "Management only" || var.install_type == "Manual Configuration" : true
-    error_message = "Install type should be 'Cluster' or 'Gateway only' or 'AutoScale' or 'Management only' or 'Manual Configuration'."
+    error_message = "Install type should be 'Cluster' or 'Gateway only' or 'AutoScale' or 'Management only'."
   }
 }
 variable "instance_suffixes" {
@@ -92,7 +92,7 @@ variable "license_type" {
   type    = string
   default = null
   validation {
-    condition     = var.license_type != null ? upper(var.license_type) == "PAYG" || upper(var.license_type) == "PAYG" : true
+    condition     = var.license_type != null ? upper(var.license_type) == "BYOL" || upper(var.license_type) == "PAYG" : true
     error_message = "License type should be 'BYOL' or 'PAYG'."
   }
 }
@@ -203,4 +203,14 @@ variable "internal_routes" {
 variable "create" {
   type    = bool
   default = true
+}
+variable "smart_1_cloud_token_a" {
+  type        = string
+  description = "(Optional) Smart-1 cloud token for member A to connect this Gateway to Check Point's Security Management as a Service"
+  default     = ""
+}
+variable "smart_1_cloud_token_b" {
+  type        = string
+  description = "(Optional) Smart-1 cloud token for member B to connect this Gateway to Check Point's Security Management as a Service"
+  default     = ""
 }

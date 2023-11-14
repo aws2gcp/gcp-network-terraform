@@ -9,27 +9,36 @@ locals {
         ip_range       = var.main_cidrs[i]
         secondary_ranges = concat(
           # GKE Pods Range
-          [for gke_pods in coalesce(var.gke_pods_cidrs, []) : {
+          [{
             name  = "gke-pods"
             range = var.gke_pods_cidrs[i]
           }],
           # GKE Services Ranges
           length(coalesce(var.gke_services_cidrs, [])) > 0 ? [for s in range(0, 29) : {
             name  = format("gke-services-%02s", s)
-            range = cidrsubnet(var.gke_services_cidrs[i], 5, s)
+            range = cidrsubnet(var.gke_services_cidrs[i], var.gke_services_range_length - split("/", var.gke_services_cidrs[i])[1], s)
           }] : [],
         )
         attached_projects = concat(var.subnet_attached_projects, var.attached_projects)
         shared_accounts   = concat(var.subnet_shared_accounts, var.shared_accounts)
       }
-      ], [
+    ],
+    var.create_proxy_only_subnet == true && var.proxy_only_cidr != null ? [
       {
-        # Also add proxy-only subnet
+        # Proxy-only subnet for Application ILBs
         name     = "${local.name}-x-proxy-only"
         ip_range = var.proxy_only_cidr
         purpose  = var.proxy_only_purpose
       }
-    ]
+    ] : [],
+    var.psc_prefix_base != null ? [for p in range(var.num_psc_subnets) :
+      {
+        # Also add PSC subnets
+        name     = "${local.name}-x-psc-${format("%02s", p)}"
+        ip_range = cidrsubnet(var.psc_prefix_base, var.psc_subnet_length - split("/", var.psc_prefix_base)[1], p)
+        purpose  = var.psc_purpose
+      }
+    ] : []
   ))
   cloud_routers = [
     {

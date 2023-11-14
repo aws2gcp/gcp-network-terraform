@@ -47,12 +47,37 @@ variable "gke_services_cidrs" {
   type    = list(string)
   default = []
 }
+variable "gke_services_range_length" {
+  type    = number
+  default = 22
+}
+variable "create_proxy_only_subnet" {
+  type    = bool
+  default = true
+}
 variable "proxy_only_cidr" {
-  type = string
+  type    = string
+  default = null
 }
 variable "proxy_only_purpose" {
   type    = string
   default = "REGIONAL_MANAGED_PROXY"
+}
+variable "psc_prefix_base" {
+  type    = string
+  default = null
+}
+variable "psc_subnet_length" {
+  type    = number
+  default = 28
+}
+variable "num_psc_subnets" {
+  type    = number
+  default = 16
+}
+variable "psc_purpose" {
+  type    = string
+  default = "PRIVATE_SERVICE_CONNECT"
 }
 variable "servicenetworking_cidr" {
   type = string
