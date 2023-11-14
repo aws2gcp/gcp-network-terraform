@@ -42,3 +42,4 @@ resource "google_compute_subnetwork_iam_binding" "compute" {
   members    = each.value.members
   depends_on = [google_compute_subnetwork.default]
 }
+ 

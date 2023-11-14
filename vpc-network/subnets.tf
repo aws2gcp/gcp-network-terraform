@@ -64,4 +64,3 @@ resource "google_compute_subnetwork" "default" {
     ip_cidr_range = v.range
   }]
 }
-
