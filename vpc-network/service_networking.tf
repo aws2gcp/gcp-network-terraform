@@ -11,7 +11,7 @@ locals {
     create               = coalesce(v.create, true)
   }]
   service_connections = [for i, v in local.service_connections_0 : merge(v, {
-    key = "${v.project_id}::${v.name}"
+    key = "${v.project_id}::${v.network_name}::${v.service}"
   })]
 }
 
