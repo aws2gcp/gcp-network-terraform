@@ -23,7 +23,7 @@ locals {
     icmp_idle_timeout      = coalesce(v.icmp_idle_timeout, var.defaults.cloud_nat_icmp_idle_timeout)
   })]
   cloud_nats_1 = [for i, v in local.cloud_nats_0 : merge(v, {
-    key = "${v.project_id}-${v.region}-${v.name}"
+    key = "${v.project_id}::${v.region}::${v.name}"
   })]
   nat_addresses = { for i, v in local.cloud_nats_1 : v.key => [
     for a in range(v.num_static_ips) : {
@@ -44,7 +44,7 @@ locals {
   addresses = flatten([
     for k, addresses in local.cloud_nat_addresses : [
       for i, address in coalesce(addresses, []) : merge(address, {
-        key = "${k}-${i}"
+        key = "${k}::${i}"
       })
     ]
   ])
@@ -52,7 +52,7 @@ locals {
 
 # External IP Address Allocations for Cloud NATs using static IP(s)
 resource "google_compute_address" "cloud_nat" {
-  for_each     = { for address in local.addresses : "${address.key}" => address }
+  for_each     = { for address in local.addresses : address.key => address }
   project      = var.project_id
   name         = each.value.name
   description  = each.value.description
@@ -80,7 +80,7 @@ locals {
 }
 
 resource "google_compute_router_nat" "default" {
-  for_each                           = { for k, v in local.cloud_nats : v.key => v if v.create }
+  for_each                           = { for i, v in local.cloud_nats : v.key => v if v.create }
   project                            = var.project_id
   name                               = each.value.name
   router                             = each.value.router
