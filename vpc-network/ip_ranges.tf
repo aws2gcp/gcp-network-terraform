@@ -12,12 +12,12 @@ locals {
     network_name  = google_compute_network.default.name
   }]
   ip_ranges = [for i, v in local.ip_ranges_0 : merge(v, {
-    key = "${v.project_id}-${v.network_name}-${v.name}"
+    key = "${v.project_id}::${v.network_name}::${v.name}"
   })]
 }
 
 resource "google_compute_global_address" "default" {
-  for_each      = { for k, v in local.ip_ranges : v.key => v if v.create }
+  for_each      = { for i, v in local.ip_ranges : v.key => v if v.create }
   project       = var.project_id
   name          = each.value.name
   description   = each.value.description

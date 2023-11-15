@@ -16,7 +16,7 @@ locals {
 }
 
 resource "google_service_networking_connection" "default" {
-  for_each                = { for k, v in local.service_connections : v.key => v if v.create }
+  for_each                = { for i, v in local.service_connections : v.key => v if v.create }
   reserved_peering_ranges = each.value.ip_ranges
   service                 = each.value.service
   network                 = each.value.network_id
@@ -25,7 +25,7 @@ resource "google_service_networking_connection" "default" {
 
 # Separate Step to handle route import/export on peering connections
 resource "google_compute_network_peering_routes_config" "default" {
-  for_each             = { for k, v in local.service_connections : v.key => v if v.create && v.import_custom_routes || v.export_custom_routes }
+  for_each             = { for i, v in local.service_connections : v.key => v if v.create && v.import_custom_routes || v.export_custom_routes }
   peering              = google_service_networking_connection.default[each.key].peering
   network              = each.value.network_name
   import_custom_routes = each.value.import_custom_routes
