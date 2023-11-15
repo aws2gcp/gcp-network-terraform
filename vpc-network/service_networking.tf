@@ -1,5 +1,5 @@
 locals {
-  service_connections_0 = [for i, v in coalesce(var.service_connections, []): {
+  service_connections_0 = [for i, v in coalesce(var.service_connections, []) : {
     project_id           = coalesce(v.project_id, var.project_id)
     name                 = coalesce(v.name, "service-networking-${i}")
     service              = lower(coalesce(v.service, "servicenetworking.googleapis.com"))
