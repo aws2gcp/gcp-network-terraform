@@ -1,5 +1,5 @@
 locals {
-  routes_0 = [for i, v in var.routes : merge(v, {
+  routes_0 = [for i, v in coalesce(var.routes, []) : merge(v, {
     create        = coalesce(v.create, true)
     project_id    = coalesce(v.project_id, var.project_id)
     name          = replace(coalesce(v.name, "route-${i}"), "_", "-")
@@ -9,7 +9,7 @@ locals {
     for i, v in local.routes_0 : [
       for r, dest_range in coalesce(v.dest_ranges, []) : merge(v, {
         name       = "${v.name}-${r}"
-        key        = "${v.project_id}-${v.name}-${r}"
+        key        = "${v.project_id}::${v.name}::${r}"
         dest_range = dest_range
       })
     ]
