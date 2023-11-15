@@ -1,8 +1,8 @@
 locals {
-  dns_zones_0 = { for k, v in var.dns_zones : k => merge(v,
+  dns_zones_0 = [for i, v in var.dns_zones : merge(v,
     {
       project_id          = coalesce(v.project_id, var.project_id)
-      name                = coalesce(v.name, k)
+      name                = coalesce(v.name, "dns-zone-${i}")
       description         = coalesce(v.description, "Managed by Terraform")
       dns_name            = endswith(v.dns_name, ".") ? v.dns_name : "${v.dns_name}."
       peer_project_id     = coalesce(v.peer_project_id, var.project_id)
@@ -14,24 +14,25 @@ locals {
       force_destroy       = coalesce(v.force_destroy, false)
       create              = coalesce(v.create, true)
     }
-  ) }
-  dns_zones_1 = { for k, v in local.dns_zones_0 : k => merge(v,
+  )]
+  dns_zones_1 = [for i, v in local.dns_zones_0 : merge(v,
     {
       visibility = length(v.visible_networks) > 0 ? "private" : v.visibility
     }
-  ) }
-  dns_zones = { for k, v in local.dns_zones_1 : k => merge(v,
+  )]
+  dns_zones = [for i, v in local.dns_zones_1 : merge(v,
     {
       is_private = v.visibility == "private" ? true : false
       is_public  = v.visibility == "public" ? true : false
+      key        = "${v.project_id}::${v.name}"
     }
-  ) }
+  )]
   url_prefix = "https://www.googleapis.com/compute/v1/projects"
 }
 
 # DNS Zones
 resource "google_dns_managed_zone" "default" {
-  for_each      = { for k, v in local.dns_zones : k => v if v.create }
+  for_each      = { for k, v in local.dns_zones : v.key => v if v.create }
   project       = each.value.project_id
   name          = each.value.name
   description   = each.value.description

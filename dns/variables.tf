@@ -4,8 +4,8 @@ variable "project_id" {
   default     = null
 }
 variable "dns_zones" {
-  description = "Map of DNS zones"
-  type = map(object({
+  description = "DNS zones"
+  type = list(object({
     project_id        = optional(string)
     dns_name          = string
     name              = optional(string)
@@ -28,11 +28,11 @@ variable "dns_zones" {
     })))
     create = optional(bool)
   }))
-  default = {}
+  default = []
 }
 variable "dns_policies" {
-  description = "Map of DNS Policies"
-  type = map(object({
+  description = "DNS Policies"
+  type = list(object({
     project_id                = optional(string)
     name                      = optional(string)
     description               = optional(string)
@@ -45,5 +45,5 @@ variable "dns_policies" {
     networks = optional(list(string))
     create   = optional(bool)
   }))
-  default = {}
+  default = []
 }
