@@ -30,8 +30,13 @@ variable "region" {
   type        = string
   default     = null
 }
-variable "service_project_ids" {
+variable "attached_projects" {
   description = "For Shared VPC, list of service projects to share this network to"
+  type        = list(string)
+  default     = null
+}
+variable "shared_accounts" {
+  description = "For Shared VPC, list of members to share this network to"
   type        = list(string)
   default     = null
 }
