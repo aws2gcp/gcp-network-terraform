@@ -1,6 +1,6 @@
 locals {
   # Create list of all service project IDs being shared to
-  service_project_ids = flatten([for k, v in local.subnets : v.attached_projects if length(v.attached_projects) > 0])
+  service_project_ids = flatten([for i, v in local.subnets : v.attached_projects if length(v.attached_projects) > 0])
 }
 
 # Retrieve project information for all service projects, given project ID
@@ -21,7 +21,7 @@ locals {
   # Create a list of objects for all subnets that are shared
   shared_subnets = flatten([
     for k, v in local.subnets : {
-      subnet_key        = k
+      subnet_key        = v.key
       subnet_project_id = v.project_id
       subnet_region     = v.region
       subnet_id         = "projects/${v.project_id}/regions/${v.region}/subnetworks/${v.name}"
