@@ -2,7 +2,7 @@ locals {
   dns_policies_0 = [for i, v in var.dns_policies : merge(v,
     {
       project_id                = coalesce(v.project_id, var.project_id)
-      name                      = coalesce(v.name, k)
+      name                      = coalesce(v.name, "dns-policy-${i}")
       description               = coalesce(v.description, "Managed by Terraform")
       enable_inbound_forwarding = coalesce(v.enable_inbound_forwarding, true)
       target_name_servers       = coalesce(v.target_name_servers, [])
