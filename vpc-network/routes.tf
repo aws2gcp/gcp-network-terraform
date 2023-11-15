@@ -4,7 +4,7 @@ locals {
     project_id    = coalesce(v.project_id, var.project_id)
     name          = replace(coalesce(v.name, "route-${i}"), "_", "-")
     next_hop_type = can(regex("^[1-2]", v.next_hop)) ? "ip" : "instance"
-    dest_ranges   = flatten(v.dest_ranges, [v.dest_range])
+    dest_ranges   = flatten(concat(v.dest_ranges, [v.dest_range]))
   })]
   routes = flatten([
     for i, v in local.routes_0 : [
