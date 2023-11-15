@@ -1,5 +1,5 @@
 locals {
-  cloud_routers_0 = [for i, v in var.cloud_routers : {
+  cloud_routers_0 = [for i, v in coalesce(var.cloud_routers, []): {
     create                 = coalesce(v.create, true)
     project_id             = coalesce(v.project_id, var.project_id)
     name                   = coalesce(v.name, "rtr-${i}")

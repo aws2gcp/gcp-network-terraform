@@ -1,5 +1,5 @@
 locals {
-  peerings_0 = { for k, v in var.peerings : k => merge(v,
+  peerings_0 = { for k, v in coalesce(var.peerings, []) : k => merge(v,
     {
       name              = coalesce(v.name, k)
       peer_project_id   = coalesce(v.peer_project_id, v.project_id, var.project_id)
