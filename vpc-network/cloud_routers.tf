@@ -13,7 +13,7 @@ locals {
     advertised_ip_ranges   = coalesce(v.advertised_ip_ranges, [])
   }]
   cloud_routers = [for i, v in local.cloud_routers_0 : merge(v, {
-    key = "${v.project_id}-${v.region}-${v.name}"
+    key = "${v.project_id}::${v.region}::${v.name}"
   })]
 }
 
