@@ -250,6 +250,7 @@ variable "defaults" {
     cloud_nat_icmp_idle_timeout            = optional(number, 30)
     cloud_nat_min_ports_per_vm             = optional(number, 64)
     cloud_nat_max_ports_per_vm             = optional(number, 4096)
+    cloud_nat_log_type                     = optional(string, "errors")
   })
   default = {}
 }
