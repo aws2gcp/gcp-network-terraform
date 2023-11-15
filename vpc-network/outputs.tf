@@ -8,12 +8,12 @@ output "network_self_link" {
   value = google_compute_network.default.self_link
 }
 output "subnets" {
-  value = [for i, v in local.subnets : {
+  value = { for k, v in local.subnets : v.key => {
     name     = v.name
     region   = v.region
     ip_range = v.ip_range
     id       = v.create ? google_compute_subnetwork.default[v.key].id : null
-  } if v.create]
+  } if v.create }
 }
 output "cloud_nats" {
   value = { for i, v in local.cloud_nats : v.key => {
