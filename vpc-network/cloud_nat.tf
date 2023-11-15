@@ -21,6 +21,7 @@ locals {
     tcp_time_wait_timeout  = coalesce(v.tcp_time_wait_timeout, var.defaults.cloud_nat_tcp_time_wait_timeout)
     tcp_trans_idle_timeout = coalesce(v.tcp_transitory_idle_timeout, var.defaults.cloud_nat_tcp_transitory_idle_timeout)
     icmp_idle_timeout      = coalesce(v.icmp_idle_timeout, var.defaults.cloud_nat_icmp_idle_timeout)
+    drain_nat_ips          = []
   })]
   cloud_nats_1 = [for i, v in local.cloud_nats_0 : merge(v, {
     key = "${v.project_id}::${v.region}::${v.name}"
@@ -108,5 +109,6 @@ resource "google_compute_router_nat" "default" {
   tcp_time_wait_timeout_sec        = each.value.tcp_time_wait_timeout
   tcp_transitory_idle_timeout_sec  = each.value.tcp_trans_idle_timeout
   icmp_idle_timeout_sec            = each.value.icmp_idle_timeout
+  drain_nat_ips                    = each.value.drain_nat_ips
   depends_on                       = [google_compute_address.cloud_nat, google_compute_router.default]
 }
