@@ -74,7 +74,7 @@ locals {
     nat_ip_allocate_option = length(v.static_ips) > 0 || v.num_static_ips > 0 ? "MANUAL_ONLY" : "AUTO_ONLY"
   })]
   cloud_nats = [for i, v in local.cloud_nats_2 : merge(v, {
-    logging                 = v.log_type != "none" ? true : false
+    logging                 = v.log_type == "none" ? false : true
     log_filter              = lookup(local.log_filter, v.log_type, "ERRORS_ONLY")
     source_ip_ranges_to_nat = length(v.subnets) > 0 ? "LIST_OF_SUBNETWORKS" : "ALL_SUBNETWORKS_ALL_IP_RANGES"
   })]
