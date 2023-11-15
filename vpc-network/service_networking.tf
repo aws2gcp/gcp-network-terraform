@@ -9,9 +9,9 @@ locals {
     export_custom_routes = coalesce(v.export_custom_routes, false)
     ip_ranges            = v.ip_ranges
     create               = coalesce(v.create, true)
-  } if coalesce(v.create, true)]
+  }]
   service_connections = [for i, v in local.service_connections_0 : merge(v, {
-    key = "${v.project_id}-${v.name}"
+    key = "${v.project_id}::${v.name}"
   })]
 }
 
