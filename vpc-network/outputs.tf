@@ -12,7 +12,7 @@ output "subnets" {
     name     = v.name
     region   = v.region
     ip_range = v.ip_range
-    id       = try(google_compute_subnetwork.default[k].id, null)
+    id       = try(google_compute_subnetwork.default[v.key].id, null)
   } if v.create }
 }
 output "cloud_nats" {
