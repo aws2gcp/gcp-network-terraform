@@ -7,7 +7,7 @@ locals {
     name                   = coalesce(v.name, "nat-${i}")
     network_name           = coalesce(var.network_name, "default")
     region                 = coalesce(v.region, var.region)
-    router                 = coalesce(v.cloud_router_name, try(local.cloud_router_names[v.cloud_router], null), "unknown")
+    router                 = coalesce(v.cloud_router_name, try(local.cloud_router_names[v.cloud_router], null), v.name)
     num_static_ips         = coalesce(v.num_static_ips, 0)
     static_ips             = coalesce(v.static_ips, [])
     subnets                = coalesce(v.subnets, [])
