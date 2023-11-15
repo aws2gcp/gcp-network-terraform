@@ -38,7 +38,7 @@ locals {
       project_id  = coalesce(v.project_id, var.project_id)
       region      = coalesce(v.region, var.region)
       name        = coalesce(nat_address.name, "cloudnat-${v.network_name}-${v.region}-${a}")
-      description = coalesce(nat_address.description, "External Static IP for Cloud NAT")
+      description = nat_address.description
       address     = nat_address.address
     }
   ] if length(v.static_ips) > 0 || v.num_static_ips > 0 }
