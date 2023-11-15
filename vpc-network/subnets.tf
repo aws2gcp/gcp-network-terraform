@@ -1,5 +1,5 @@
 locals {
-  subnets_0 = [for i, v in var.subnets : merge(v,
+  subnets_0 = [for i, v in coalesce(var.subnets, []) : merge(v,
     {
       create               = coalesce(v.create, true)
       project_id           = coalesce(v.project_id, var.project_id)
