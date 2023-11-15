@@ -7,3 +7,10 @@ output "dns_zones" {
     }
   }
 }
+output "dns_policies" {
+  value = {
+    for k, v in local.dns_policies : v.key => {
+      name = try(google_dns_policy.default[k].name, null)
+    } if v.create
+  }
+}

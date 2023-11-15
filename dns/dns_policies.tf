@@ -1,5 +1,5 @@
 locals {
-  dns_policies = { for k, v in var.dns_policies : k => merge(v,
+  dns_policies_0 = [for i, v in var.dns_policies : merge(v,
     {
       project_id                = coalesce(v.project_id, var.project_id)
       name                      = coalesce(v.name, k)
@@ -10,12 +10,17 @@ locals {
       logging                   = coalesce(v.logging, false)
       create                    = coalesce(v.create, true)
     }
-  ) }
+  )]
+  dns_policies = [for i, v in local.dns_policies_0 : merge(v,
+    {
+      key = "${v.project_id}::${v.name}"
+    }
+  )]
 }
 
 # DNS Server Policies
 resource "google_dns_policy" "default" {
-  for_each                  = { for k, v in local.dns_policies : k => v if v.create }
+  for_each                  = { for k, v in local.dns_policies : v.key => v if v.create }
   project                   = each.value.project_id
   name                      = each.value.name
   description               = each.value.description
