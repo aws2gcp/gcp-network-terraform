@@ -22,7 +22,7 @@ locals {
     }
   )]
   subnets = [for i, v in local.subnets_0 : merge(v, {
-    key                  = "${v.project_id}-${v.region}-${v.name}"
+    key                  = "${v.project_id}::${v.region}::${v.name}"
     is_private           = v.purpose == "PRIVATE" ? true : false
     is_proxy_only        = contains(["INTERNAL_HTTPS_LOAD_BALANCER", "REGIONAL_MANAGED_PROXY"], v.purpose) ? true : false
     has_secondary_ranges = length(v.secondary_ranges) > 0 ? true : false
