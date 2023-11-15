@@ -1,5 +1,5 @@
 locals {
-  ip_ranges_0 = [for i, v in var.ip_ranges : {
+  ip_ranges_0 = [for i, v in coalesce(var.ip_ranges, []) : {
     create        = coalesce(v.create, true)
     project_id    = coalesce(v.project_id, var.project_id)
     name          = coalesce(v.name, "ip-range-${i}")
