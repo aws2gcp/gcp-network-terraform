@@ -15,7 +15,7 @@ locals {
     enable_eim             = coalesce(v.enable_eim, var.defaults.cloud_nat_enable_eim)
     min_ports_per_vm       = coalesce(v.min_ports_per_vm, var.defaults.cloud_nat_min_ports_per_vm, v.enable_dpa != false ? 32 : 64)
     max_ports_per_vm       = v.enable_dpa != false ? coalesce(v.max_ports_per_vm, var.defaults.cloud_nat_max_ports_per_vm, 65536) : null
-    log_type               = lower(coalesce(v.log_type, "none"))
+    log_type               = lower(coalesce(v.log_type, var.defaults.cloud_nat_log_type))
     udp_idle_timeout       = coalesce(v.udp_idle_timeout, var.defaults.cloud_nat_udp_idle_timeout)
     tcp_est_idle_timeout   = coalesce(v.tcp_established_idle_timeout, var.defaults.cloud_nat_tcp_established_idle_timeout)
     tcp_time_wait_timeout  = coalesce(v.tcp_time_wait_timeout, var.defaults.cloud_nat_tcp_time_wait_timeout)
