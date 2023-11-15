@@ -17,9 +17,9 @@ locals {
 
 resource "google_service_networking_connection" "default" {
   for_each                = { for i, v in local.service_connections : v.key => v if v.create }
-  reserved_peering_ranges = each.value.ip_ranges
+  network                 = each.value.network_name
   service                 = each.value.service
-  network                 = each.value.network_id
+  reserved_peering_ranges = each.value.ip_ranges
   depends_on              = [google_compute_global_address.default]
 }
 
