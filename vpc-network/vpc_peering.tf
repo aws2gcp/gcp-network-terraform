@@ -1,22 +1,23 @@
 locals {
-  peerings = { for k, v in var.peerings : k => merge(v,
+  peerings_0 = { for k, v in var.peerings : k => merge(v,
     {
       name              = coalesce(v.name, k)
       peer_project_id   = coalesce(v.peer_project_id, v.project_id, var.project_id)
       peer_network_name = coalesce(v.peer_network_name, "default")
+      create            = coalesce(v.create, true)
     }
-  ) if coalesce(v.create, true) }
-  peerings_with_network_links = { for k, v in local.peerings : k => merge(v,
+  ) }
+  peerings = { for k, v in local.peerings_0 : k => merge(v,
     {
+      key = "${v.project_id}::${v.network_name}::${v.name}"
       # If peer network link not provided, we can generate it using their project ID and network name
       peer_network_link = coalesce(v.peer_network_link, "projects/${v.peer_project_id}/global/networks/${v.peer_network_name}")
     }
   ) }
-
 }
 
 resource "google_compute_network_peering" "default" {
-  for_each                            = local.peerings_with_network_links
+  for_each                            = { for k, v in local.peerings : v.key => v if v.create }
   name                                = each.value.name
   network                             = google_compute_network.default.id
   peer_network                        = each.value.peer_network_link
