@@ -2,7 +2,6 @@ locals {
   dns_zones_0 = [for i, v in var.dns_zones : merge(v,
     {
       project_id          = coalesce(v.project_id, var.project_id)
-      name                = coalesce(v.name, "dns-zone-${i}")
       description         = coalesce(v.description, "Managed by Terraform")
       dns_name            = endswith(v.dns_name, ".") ? v.dns_name : "${v.dns_name}."
       peer_project_id     = coalesce(v.peer_project_id, var.project_id)
@@ -17,6 +16,7 @@ locals {
   )]
   dns_zones_1 = [for i, v in local.dns_zones_0 : merge(v,
     {
+      name       = coalesce(v.name, trimsuffix(replace(v.dns_name, ".", "-"), "-"))
       visibility = length(v.visible_networks) > 0 ? "private" : v.visibility
     }
   )]
@@ -27,7 +27,6 @@ locals {
       key        = "${v.project_id}::${v.name}"
     }
   )]
-  url_prefix = "https://www.googleapis.com/compute/v1/projects"
 }
 
 # DNS Zones
