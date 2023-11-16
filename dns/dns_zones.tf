@@ -16,7 +16,7 @@ locals {
   )]
   dns_zones_1 = [for i, v in local.dns_zones_0 : merge(v,
     {
-      name       = coalesce(v.name, trimsuffix(replace(v.dns_name, ".", "-"), "-"))
+      name       = lower(coalesce(v.name, trimsuffix(replace(v.dns_name, ".", "-"), "-")))
       visibility = length(v.visible_networks) > 0 ? "private" : v.visibility
     }
   )]
