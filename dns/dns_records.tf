@@ -4,7 +4,7 @@ locals {
       for r in v.records : {
         project_id   = v.project_id
         managed_zone = v.name
-        name         = record.name == "" ? v.dns_name : "${r.name}.${v.dns_name}"
+        name         = r.name == "" ? v.dns_name : "${r.name}.${v.dns_name}"
         type         = upper(coalesce(r.type, "A"))
         ttl          = coalesce(r.ttl, 300)
         rrdatas      = coalesce(r.rrdatas, [])
