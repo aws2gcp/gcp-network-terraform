@@ -1,4 +1,6 @@
 output "dns_zones" {
+  value = local.dns_zones
+  /*
   value = {
     for i, v in local.dns_zones : v.key => {
       foo = "bar"
@@ -7,6 +9,7 @@ output "dns_zones" {
       visibility  = v.visibility
     } #if v.create
   }
+  */
 }
 output "dns_policies" {
   value = {
