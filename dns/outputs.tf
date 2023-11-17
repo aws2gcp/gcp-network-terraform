@@ -1,4 +1,4 @@
-output "dns_zones" {value = "foo"
+output "dns_zones" {
   value = {
     for i, v in local.dns_zones : v.key => {
       foo = "bar"
