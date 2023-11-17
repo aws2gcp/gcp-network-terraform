@@ -47,3 +47,30 @@ variable "dns_policies" {
   }))
   default = []
 }
+variable "dns_zone" {
+  description = "DNS zone"
+  type = object({
+    create            = optional(bool)
+    project_id        = optional(string)
+    dns_name          = string
+    name              = optional(string)
+    description       = optional(string)
+    visibility        = optional(string)
+    visible_networks  = optional(list(string))
+    peer_project_id   = optional(string)
+    peer_network_name = optional(string)
+    logging           = optional(bool)
+    force_destroy     = optional(bool)
+    target_name_servers = optional(list(object({
+      ipv4_address    = optional(string)
+      forwarding_path = optional(string)
+    })))
+    records = optional(list(object({
+      name    = string
+      type    = optional(string)
+      ttl     = optional(number)
+      rrdatas = list(string)
+    })))
+  })
+  default = null
+}
