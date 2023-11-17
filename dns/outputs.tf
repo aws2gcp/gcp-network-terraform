@@ -5,7 +5,7 @@ output "dns_zones" {
       dns_name     = try(google_dns_managed_zone.default[v.key].dns_name, null)
       name_servers = try(google_dns_managed_zone.default[v.key].name_servers, null)
       visibility  = v.visibility
-    } if v.create
+    } #if v.create
   }
 }
 output "dns_policies" {
