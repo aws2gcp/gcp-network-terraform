@@ -1,7 +1,7 @@
 locals {
   dns_zone_0 = merge(var.dns_zone,
     {
-      project_id          = coalesce(var.dns_zone.project_id, var.project_id)
+      project_id = coalesce(var.dns_zone.project_id, var.project_id)
       #name                = coalesce(var.dns_zone.name, "dns-zone")
       description         = coalesce(var.dns_zone.description, "Managed by Terraform")
       dns_name            = endswith(var.dns_zone.dns_name, ".") ? var.dns_zone.dns_name : "${var.dns_zone.dns_name}."
@@ -17,7 +17,7 @@ locals {
   )
   dns_zone_1 = merge(local.dns_zone_0,
     {
-          name       = lower(coalesce(local.dns_zone_0.name, trimsuffix(replace(local.dns_zone_0.dns_name, ".", "-"), "-")))
+      name       = lower(coalesce(local.dns_zone_0.name, trimsuffix(replace(local.dns_zone_0.dns_name, ".", "-"), "-")))
       visibility = length(local.dns_zone_0.visible_networks) > 0 ? "private" : local.dns_zone_0.visibility
     }
   )
@@ -32,7 +32,7 @@ locals {
 
 # DNS Zone
 resource "google_dns_managed_zone" "this" {
-  for_each      = { for i, v in [local.dns_zone ] : 0 => v if v.create }
+  for_each      = { for i, v in [local.dns_zone] : 0 => v if v.create }
   project       = each.value.project_id
   name          = each.value.name
   description   = each.value.description

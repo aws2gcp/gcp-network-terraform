@@ -15,7 +15,7 @@ output "dns_policies" {
 }
 output "dns_zone" {
   value = local.dns_zone.create ? {
-    name = google_dns_managed_zone.this[0].name
+    name     = google_dns_managed_zone.this[0].name
     dns_name = google_dns_managed_zone.this[0].dns_name
   } : null
 }
