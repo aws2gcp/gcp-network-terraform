@@ -1,5 +1,6 @@
 output "dns_zones" {
 value = "foo"
+/*
   value = {
     for i, v in local.dns_zones : v.key => {
       dns_name     = try(google_dns_managed_zone.default[v.key].dns_name, null)
@@ -7,6 +8,7 @@ value = "foo"
       visibility  = v.visibility
     } if v.create
   }
+  */
 }
 output "dns_policies" {
   value = {
