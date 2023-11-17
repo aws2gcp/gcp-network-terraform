@@ -1,6 +1,6 @@
 locals {
   # Create list of all service project IDs being shared to
-  service_project_ids = flatten([for i, v in local.subnets : v.attached_projects if length(v.attached_projects) > 0])
+  service_project_ids = flatten([for i, v in local.subnets : v.attached_projects])
 }
 
 # Retrieve project information for all service projects, given project ID
@@ -28,13 +28,13 @@ locals {
       members = flatten(concat([
         for i, service_project_id in v.attached_projects : lookup(local.compute_sa_accounts, service_project_id, [])
       ], v.shared_accounts))
-    } if length(v.attached_projects) > 0 || length(v.shared_accounts) > 0
+    } if !v.is_proxy_only
   ])
 }
 
 # Give Compute Network User permissions on the subnet to the applicable accounts
 resource "google_compute_subnetwork_iam_binding" "compute" {
-  for_each   = { for i, v in local.shared_subnets : "${v.subnet_key}" => v }
+  for_each   = { for i, v in local.shared_subnets : v.subnet_key => v }
   project    = each.value.subnet_project_id
   region     = each.value.subnet_region
   subnetwork = each.value.subnet_id
