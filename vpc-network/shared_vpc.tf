@@ -25,9 +25,9 @@ locals {
       subnet_project_id = v.project_id
       subnet_region     = v.region
       subnet_id         = "projects/${v.project_id}/regions/${v.region}/subnetworks/${v.name}"
-      members = flatten(concat([
+      members = toset(flatten(concat([
         for i, service_project_id in v.attached_projects : lookup(local.compute_sa_accounts, service_project_id, [])
-      ], v.shared_accounts))
+      ], v.shared_accounts)))
     } if !v.is_proxy_only
   ])
 }
