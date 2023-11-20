@@ -13,8 +13,8 @@ locals {
       log_metadata         = "INCLUDE_ALL_METADATA"
       flow_logs            = coalesce(v.flow_logs, var.defaults.subnet_flow_logs)
       stack_type           = upper(coalesce(v.stack_type, var.defaults.subnet_stack_type))
-      attached_projects    = toset(concat(coalesce(v.attached_projects, []), coalesce(var.attached_projects, [])))
-      shared_accounts      = toset(concat(coalesce(v.shared_accounts, []), coalesce(var.shared_accounts, [])))
+      attached_projects    = concat(coalesce(v.attached_projects, []), coalesce(var.attached_projects, []))
+      shared_accounts      = concat(coalesce(v.shared_accounts, []), coalesce(var.shared_accounts, []))
       secondary_ranges = [for i, v in coalesce(v.secondary_ranges, []) : {
         name  = coalesce(v.name, "secondary-range-${i}")
         range = v.range
