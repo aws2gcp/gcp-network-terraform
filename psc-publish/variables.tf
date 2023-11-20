@@ -47,11 +47,9 @@ variable "auto_accept_all_projects" {
 }
 variable "accept_project_ids" {
   description = "List of Project IDs to accept connections from"
-  type        = list(string)
-  default     = null
-}
-variable "connection_limit" {
-  description = "Max number of connections for each consumer project"
-  type        = number
-  default     = 10
+  type = list(object({
+    project_id       = string
+    connection_limit = optional(number, 10)
+  }))
+  default = []
 }
