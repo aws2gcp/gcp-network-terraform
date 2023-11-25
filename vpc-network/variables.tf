@@ -122,7 +122,7 @@ variable "cloud_nats" {
   type = list(object({
     project_id        = optional(string)
     name              = optional(string)
-    region            = optional(string)
+    region            = string
     cloud_router      = optional(string)
     cloud_router_name = optional(string)
     subnets           = optional(list(string))
